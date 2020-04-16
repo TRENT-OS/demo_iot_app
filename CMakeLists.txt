@@ -85,6 +85,7 @@ DeclareCAmkESComponent(SensorTemp
         seos_system_config
         seos_libs
         seos_core_api
+        seos_network_api
         seos_configuration
         seos_logger
         seos_mqtt
