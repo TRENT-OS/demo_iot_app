@@ -34,3 +34,30 @@ component NwDriver {
     has      mutex              nic_control_channel_mutex;
 
 }
+
+//------------------------------------------------------------------------------
+component NwDriver_2 {
+
+    control;
+
+    uses        ChanMuxDriverInf        ChanMuxRpc;
+    consumes    NwDriver_DataAvailable  ChanMuxSignal_dataAvailable;
+    dataport    Buf                     port_chanMux_ctrl;
+    dataport    Buf                     port_chanMux_data_read;
+    dataport    Buf                     port_chanMux_data_write;
+
+    provides    if_OS_nic               nic_driver;
+    emits       ServiceReady            event_init_done;
+    emits       NwStack_DataAvailable   event_nwstack_hasData;
+    dataport    Buf                     port_nwStack_to;   // driver -> network stack
+    dataport    Buf                     port_nwStack_from; // network stack -> driver
+
+    //-------------------------------------------------
+    // interface to log server
+    dataport Buf                logServer_dataport_buf;
+    consumes DataAvailableEvent logServer_ready;
+    uses     if_OS_Logger       log_server_interface;
+
+    has      mutex              nic_control_channel_mutex;
+
+}

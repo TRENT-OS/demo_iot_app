@@ -24,10 +24,15 @@ static system_config_t systemConfig =
 {
     .network_stack_config = {
         .config_domain = DOMAIN_NWSTACK,
-        .dev_addr = {
-            .config_param_name = ETH_ADDR,
-            .addr = ETH_ADDR_VALUE,
-            .len = sizeof(ETH_ADDR_VALUE)
+        .client_addr = {
+            .config_param_name = ETH_ADDR_CLIENT,
+            .addr = ETH_ADDR_CLIENT_VALUE,
+            .len = sizeof(ETH_ADDR_CLIENT_VALUE)
+        },
+        .server_addr = {
+            .config_param_name = ETH_ADDR_SERVER,
+            .addr = ETH_ADDR_SERVER_VALUE,
+            .len = sizeof(ETH_ADDR_SERVER_VALUE)
         },
         .gateway = {
             .config_param_name = ETH_GATEWAY_ADDR,

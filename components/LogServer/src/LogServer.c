@@ -30,6 +30,8 @@
 #define DATABUFFER_SERVER_04    (void *)dataport_buf_sensorTemp
 #define DATABUFFER_SERVER_05    (void *)dataport_buf_nwDriver
 #define DATABUFFER_SERVER_06    (void *)dataport_buf_nwStack
+#define DATABUFFER_SERVER_07    (void *)dataport_buf_nwStack_2
+#define DATABUFFER_SERVER_08    (void *)dataport_buf_nwDriver_2
 
 // log server id
 #define LOG_SERVER_ID               0
@@ -41,6 +43,8 @@
 #define CLIENT_SENSORTEMP_ID        40
 #define CLIENT_NWDRIVER_ID          50
 #define CLIENT_NWSTACK_ID           60
+#define CLIENT_NWSTACK2_ID          70
+#define CLIENT_NWDRIVER2_ID         80
 
 #define PARTITION_ID                1
 #define LOG_FILENAME                "log.txt"
@@ -51,11 +55,13 @@ uint32_t API_LOG_SERVER_GET_SENDER_ID(void);
 
 
 
-static OS_LoggerFilter_Handle_t filter_admin, filter_configSrv, 
-        filter_cloudCon, filter_sensorTemp, filter_nwDriver, filter_nwStack;
+static OS_LoggerFilter_Handle_t filter_admin, filter_configSrv,
+        filter_cloudCon, filter_sensorTemp, filter_nwDriver, filter_nwStack,
+        filter_nwStack_2, filter_nwDriver_2;
 static OS_LoggerConsumer_Handle_t log_consumer_admin, log_consumer_configSrv,
        log_consumer_cloudCon, log_consumer_sensorTemp,
-       log_consumer_nwDriver, log_consumer_nwStack;
+       log_consumer_nwDriver, log_consumer_nwStack, log_consumer_nwStack_2,
+       log_consumer_nwDriver_2;
 static OS_LoggerConsumerCallback_t log_consumer_callback;
 static OS_LoggerFormat_Handle_t format;
 static OS_LoggerSubject_Handle_t subject;
@@ -175,6 +181,7 @@ void log_server_interface__init()
     OS_LoggerFilter_ctor(&filter_sensorTemp,     Debug_LOG_LEVEL_INFO);
     OS_LoggerFilter_ctor(&filter_nwDriver,       Debug_LOG_LEVEL_INFO);
     OS_LoggerFilter_ctor(&filter_nwStack,        Debug_LOG_LEVEL_INFO);
+    OS_LoggerFilter_ctor(&filter_nwStack_2,      Debug_LOG_LEVEL_INFO);
     // Emitter configuration
     OS_LoggerFilter_ctor(&filter_log_server,     Debug_LOG_LEVEL_DEBUG);
 
@@ -189,6 +196,8 @@ void log_server_interface__init()
     OS_LoggerConsumer_ctor(&log_consumer_sensorTemp,     DATABUFFER_SERVER_04, &filter_sensorTemp,     &log_consumer_callback, &subject, NULL, CLIENT_SENSORTEMP_ID, "SENSOR-TEMP");
     OS_LoggerConsumer_ctor(&log_consumer_nwDriver,       DATABUFFER_SERVER_05, &filter_nwDriver,       &log_consumer_callback, &subject, NULL, CLIENT_NWDRIVER_ID, "NWDRIVER");
     OS_LoggerConsumer_ctor(&log_consumer_nwStack,        DATABUFFER_SERVER_06, &filter_nwStack,        &log_consumer_callback, &subject, NULL, CLIENT_NWSTACK_ID, "NWSTACK");
+    OS_LoggerConsumer_ctor(&log_consumer_nwStack_2,      DATABUFFER_SERVER_07, &filter_nwStack_2,      &log_consumer_callback, &subject, NULL, CLIENT_NWSTACK2_ID, "NWSTACK2");
+    OS_LoggerConsumer_ctor(&log_consumer_nwDriver_2,     DATABUFFER_SERVER_08, &filter_nwDriver_2,     &log_consumer_callback, &subject, NULL, CLIENT_NWDRIVER2_ID, "NWDRIVER2");
 
     // Emitter configuration
     OS_LoggerConsumer_ctor(&log_consumer_log_server, buf_log_server, &filter_log_server, &log_consumer_callback, &subject_log_server, &log_file, LOG_SERVER_ID, "LOG-SERVER");
@@ -203,6 +212,7 @@ void log_server_interface__init()
     OS_LoggerConsumerChain_append(&log_consumer_sensorTemp);
     OS_LoggerConsumerChain_append(&log_consumer_nwDriver);
     OS_LoggerConsumerChain_append(&log_consumer_nwStack);
+    OS_LoggerConsumerChain_append(&log_consumer_nwStack_2);
     // Emitter configuration
     OS_LoggerConsumerChain_append(&log_consumer_log_server);
 

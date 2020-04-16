@@ -18,9 +18,15 @@
 #define NO_CHANMUX_FIFO         { .buffer = NULL, .len = 0 }
 #define NO_CHANMUX_DATA_PORT    { .io = NULL, .len = 0 }
 
-
+// Increased FIFO size to store 1 minute of network "background" traffic (seen in wireshark)
+// And then doubled it to cover our tests
 static uint8_t nwFifoBuf[1024 * PAGE_SIZE];
 static uint8_t nwCtrFifoBuf[128];
+
+// Increased FIFO size to store 1 minute of network "background" traffic (seen in wireshark)
+// And then doubled it to cover our tests
+static uint8_t nwFifoBuf_2[1024 * PAGE_SIZE];
+static uint8_t nwCtrFifoBuf_2[128];
 
 static uint8_t clientFifoBuf[PAGE_SIZE];
 
@@ -39,8 +45,8 @@ static const ChanMuxConfig_t cfgChanMux =
         { .buffer = nwCtrFifoBuf,   .len = sizeof(nwCtrFifoBuf) },
         { .buffer = nwFifoBuf,      .len = sizeof(nwFifoBuf) },
         { .buffer = clientFifoBuf,  .len = sizeof(clientFifoBuf) },
-        NO_CHANMUX_FIFO,
-        NO_CHANMUX_FIFO
+        { .buffer = nwCtrFifoBuf_2, .len = sizeof(nwCtrFifoBuf_2) },
+        { .buffer = nwFifoBuf_2,    .len = sizeof(nwFifoBuf_2) }
     }
 };
 
@@ -74,14 +80,19 @@ static const dataport_rw_t dataports[CHANMUX_NUM_CHANNELS] =
         .write = CHANMUX_DATA_PORT( (void**)&port_nic_data_write, PAGE_SIZE )
     },
     CHANMUX_DATA_PORT_RW_SHARED( (void**)&pm_data_buf, PAGE_SIZE ),
-    NO_CHANMUX_DATA_PORT_RW
+    CHANMUX_DATA_PORT_RW_SHARED( (void**)&port_nic_2_ctrl, PAGE_SIZE ),
+    {
+        .read  = CHANMUX_DATA_PORT( (void**) &port_nic_2_data_read,  PAGE_SIZE ),
+        .write = CHANMUX_DATA_PORT( (void**) &port_nic_2_data_write, PAGE_SIZE )
+    }
 };
 
 // sender IDs are basically the endpoint badges of the RPC connector. They are
 // defined in the main CAmkES file's configuration block as
 //   <component>.<interface>_attributes = <badge ID>
 #define SENDER_NIC        1
-#define SENDER_PM         2
+#define SENDER_NIC_2      2
+#define SENDER_PM         3
 
 #define INVALID_CHANNEL     ((unsigned int)(-1))
 
@@ -110,6 +121,12 @@ ChanMux_dataAvailable_emit(
     //---------------------------------
     case CHANMUX_CHANNEL_MAIN_DATA:
         dataAvailable_pm_emit();
+        break;
+
+    //---------------------------------
+    case CHANMUX_CHANNEL_NIC_2_CTRL:
+    case CHANMUX_CHANNEL_NIC_2_DATA:
+        event_nic_2_hasData_emit();
         break;
 
 
@@ -203,6 +220,23 @@ ChanMux_resolveChannel(
     //----------------------------------
     case SENDER_PM:
         chanNum_global = CHANMUX_CHANNEL_MAIN_DATA;
+        break;
+    //----------------------------------
+    case SENDER_NIC_2:
+        switch (chanNum_local)
+        {
+        //----------------------------------
+        case CHANMUX_CHANNEL_NIC_2_CTRL: // ToDo: use local channel number
+            chanNum_global = CHANMUX_CHANNEL_NIC_2_CTRL;
+            break;
+        //----------------------------------
+        case CHANMUX_CHANNEL_NIC_2_DATA: // ToDo: use local channel number
+            chanNum_global = CHANMUX_CHANNEL_NIC_2_DATA;
+            break;
+        //----------------------------------
+        default:
+            break;
+        }
         break;
     //----------------------------------
     default:

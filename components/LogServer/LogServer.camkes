@@ -17,6 +17,8 @@ component LogServer {
     dataport Buf                     dataport_buf_sensorTemp;
     dataport Buf                     dataport_buf_nwDriver;
     dataport Buf                     dataport_buf_nwStack;
+    dataport Buf                     dataport_buf_nwStack_2;
+    dataport Buf                     dataport_buf_nwDriver_2;
 
     emits    DataAvailableEvent      logServer_ready;
 

@@ -101,8 +101,8 @@ DeclareCAmkESComponent(ConfigServer
         -Wall
         -Werror
         # filesystem
-        -DOS_CONFIG_SERVICE_BACKEND_FILESYSTEM
-        #-DCONFIG_SERVER_BACKEND_MEMORY
+        #-DOS_CONFIG_SERVICE_BACKEND_FILESYSTEM
+        -DOS_CONFIG_SERVICE_BACKEND_MEMORY
         -DSEOS_FS_BUILD_AS_LIB_BASIC_HANDLE
         # partition manager
         -DSEOS_PARTITION_MANAGER_BUILD_AS_COMPONENT
@@ -230,6 +230,49 @@ DeclareCAmkESComponent(NwDriver
         seos_nw_driver_tap_proxy_lib
         seos_logger
         chanmux_client
+)
+
+#-------------------------------------------------------------------------------
+# Component NwStack 2
+#-------------------------------------------------------------------------------
+DeclareCAmkESComponent(NwStack_2
+    INCLUDES
+        include/util
+    SOURCES
+        components/NwStack/network_stack.c
+        include/util/helper_func.c
+    C_FLAGS
+        -Wall -Werror
+        -DSEOS_NWSTACK_AS_SERVER
+        -DOS_CONFIG_SERVICE_CAMKES_CLIENT
+        -DCFG_ETH_ADDR=ETH_ADDR
+        -DCFG_ETH_GATEWAY_ADDR=ETH_GATEWAY_ADDR
+        -DCFG_ETH_SUBNET_MASK=ETH_SUBNET_MASK
+    LIBS
+        seos_system_config
+        seos_core_api
+        seos_libs
+        seos_nw_lib
+        seos_logger
+        seos_configuration
+)
+
+#-------------------------------------------------------------------------------
+# Component NwDriver 2
+#-------------------------------------------------------------------------------
+DeclareCAmkESComponent(NwDriver_2
+    SOURCES
+        components/NwDriver/nic_driver.c
+    C_FLAGS
+        -DCFG_CHANMUX_CHANNEL_CRTL=CHANMUX_CHANNEL_NIC_2_CTRL
+        -DCFG_CHANMUX_CHANNEL_DATA=CHANMUX_CHANNEL_NIC_2_DATA
+        -Wall -Werror
+    LIBS
+        seos_system_config
+        seos_core_api
+        seos_libs
+        chanmux_client
+        seos_nw_driver_tap_proxy_lib
 )
 
 #-------------------------------------------------------------------------------

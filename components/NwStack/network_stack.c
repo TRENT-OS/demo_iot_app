@@ -149,39 +149,50 @@ int run()
     // Get the needed param values one by one from config server, using below API
     ret = helper_func_getConfigParameter(&serverLibWithFSBackend,
                                          DOMAIN_NWSTACK,
-                                         CFG_ETH_ADDR,
+#ifdef SEOS_NWSTACK_AS_CLIENT
+                                         ETH_ADDR_CLIENT,
+#endif
+#ifdef SEOS_NWSTACK_AS_SERVER
+                                         ETH_ADDR_SERVER,
+#endif
                                          DEV_ADDR,
                                          sizeof(DEV_ADDR));
     if (ret != SEOS_SUCCESS)
     {
+#ifdef SEOS_NWSTACK_AS_CLIENT
         Debug_LOG_ERROR("helper_func_getConfigParameter for param %s failed with :%d",
-                        CFG_ETH_ADDR, ret);
+                        ETH_ADDR_CLIENT, ret);
+#endif
+#ifdef SEOS_NWSTACK_AS_SERVER
+        Debug_LOG_ERROR("helper_func_getConfigParameter for param %s failed with :%d",
+                        ETH_ADDR_SERVER, ret);
+#endif
         return ret;
     }
-    Debug_LOG_INFO("Retrieved TAP 0 IP Addr: %s", DEV_ADDR);
+    Debug_LOG_INFO("[NwStack '%s'] IP ADDR: %s", get_instance_name(), DEV_ADDR);
 
     ret = helper_func_getConfigParameter(&serverLibWithFSBackend,
                                          DOMAIN_NWSTACK,
-                                         CFG_ETH_GATEWAY_ADDR,
+                                         ETH_GATEWAY_ADDR,
                                          GATEWAY_ADDR,
                                          sizeof(GATEWAY_ADDR));
     if (ret != SEOS_SUCCESS)
     {
         Debug_LOG_ERROR("helper_func_getConfigParameter for param %s failed with :%d",
-                        CFG_ETH_GATEWAY_ADDR, ret);
+                        ETH_GATEWAY_ADDR, ret);
         return ret;
     }
     Debug_LOG_INFO("Retrieved TAP 0 GATEWAY ADDR: %s", GATEWAY_ADDR);
 
     ret = helper_func_getConfigParameter(&serverLibWithFSBackend,
                                          DOMAIN_NWSTACK,
-                                         CFG_ETH_SUBNET_MASK,
+                                         ETH_SUBNET_MASK,
                                          SUBNET_MASK,
                                          sizeof(SUBNET_MASK));
     if (ret != SEOS_SUCCESS)
     {
         Debug_LOG_ERROR("helper_func_getConfigParameter for param %s failed with :%d",
-                        CFG_ETH_SUBNET_MASK, ret);
+                        ETH_SUBNET_MASK, ret);
         return ret;
     }
     Debug_LOG_INFO("Retrieved TAP  0 SUBNETMASK: %s", SUBNET_MASK);

@@ -98,7 +98,8 @@ mqtt_msg_t;
 typedef struct
 {
     char* config_domain; /**< pointer to the domain in the config server */
-    dev_addr_t dev_addr;
+    dev_addr_t client_addr;
+    dev_addr_t server_addr;
     gateway_addr_t gateway;
     subnet_mask_t subnet_mask;
 } network_stack_config_t;

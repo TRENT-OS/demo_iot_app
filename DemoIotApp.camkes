@@ -34,6 +34,7 @@ assembly {
         connection seL4SharedData    admin_config_data           (from admin.cfg_dataport_buf,  to configServer.cfg_dataport_admin);
 
         connection  seL4Notification nwStack_admin_ready         (from admin.system_config_set, to nwStack.admin_system_config_set);
+        connection  seL4Notification nwStack2_admin_ready        (from admin.system_config_set, to nwStack_2.admin_system_config_set);
         connection  seL4Notification sensorTemp_admin_ready      (from admin.system_config_set, to sensorTemp.admin_system_config_set);
         connection  seL4Notification cloudCon_admin_ready        (from admin.system_config_set, to cloudConnector.admin_system_config_set);
 
@@ -48,6 +49,8 @@ assembly {
         connection seL4Notification sensorTemp_logServer_dataReady      (from logServer.logServer_ready, to sensorTemp.logServer_ready);
         connection seL4Notification nwDriver_logServer_dataReady        (from logServer.logServer_ready, to nwDriver.logServer_ready);
         connection seL4Notification nwStack_logServer_dataReady         (from logServer.logServer_ready, to nwStack.logServer_ready);
+        connection seL4Notification nwStack2_logServer_dataReady        (from logServer.logServer_ready, to nwStack_2.logServer_ready);
+        connection seL4Notification nwDriver2_logServer_dataReady       (from logServer.logServer_ready, to nwDriver_2.logServer_ready);
 
         connection seL4RPCCall      logServer_timeServer                (from logServer.api_time_server, to timeServer.api_time_server);
 
@@ -80,6 +83,10 @@ assembly {
         connection seL4RPCCall      sensorTemp_logServer                (from sensorTemp.log_server_interface, to logServer.log_server_interface);
         connection seL4SharedData   sensorTemp_logServer_data           (from sensorTemp.logServer_dataport_buf, to logServer.dataport_buf_sensorTemp);
 
+        connection seL4Notification NwAppInitDone_2                     (from nwStack_2.event_network_init_done, to sensorTemp.event_network_stack_init_done);
+        connection seL4RPCCall      NwApp_nwStack_2                     (from sensorTemp.network_stack_rpc, to nwStack_2.network_stack_rpc);
+        connection seL4SharedData   NwApp_dataConnection_2              (from sensorTemp.NwAppDataPort, to nwStack_2.port_app_io);
+
 
         //----------------------------------------------------------------------
         // CloudConnector
@@ -89,8 +96,8 @@ assembly {
         connection seL4RPCCall          cloudConnector_timeServer        (from cloudConnector.api_time_server, to timeServer.api_time_server);
 
         connection seL4Notification     NwAppInitDone                    (from nwStack.event_network_init_done,   to cloudConnector.event_network_stack_init_done);
-        connection seL4RPCCall          cloudConnector_nwStack           (from cloudConnector.network_stack_rpc,    to nwStack.network_stack_rpc);
-        connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.NwAppDataPort,        to nwStack.port_app_io);
+        connection seL4RPCCall          cloudConnector_nwStack           (from cloudConnector.network_stack_rpc,  to nwStack.network_stack_rpc);
+        connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.NwAppDataPort,      to nwStack.port_app_io);
 
         connection seL4RPCCall          cloudConnector_configServer      (from cloudConnector.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
         connection seL4SharedData       cloudConnector_configServer_data (from cloudConnector.cfg_dataport_buf,     to configServer.cfg_dataport_cloudConnector);
@@ -140,6 +147,46 @@ assembly {
         connection seL4RPCCall            NwStack_logServer                (from nwStack.log_server_interface,   to logServer.log_server_interface);
         connection seL4SharedData         NwStack_logServer_data           (from nwStack.logServer_dataport_buf, to logServer.dataport_buf_nwStack);
 
+        //----------------------------------------------------------------------
+        // Network Driver #2
+        //----------------------------------------------------------------------
+        component  NwDriver_2       nwDriver_2;
+
+        connection seL4Notification NwDriver_Chanmux_dataAvail_2       (from chanMux.event_nic_2_hasData,        to nwDriver_2.ChanMuxSignal_dataAvailable);
+        connection seL4RPCCall      nwDriver_chanmux_2                 (from nwDriver_2.ChanMuxRpc,              to chanMux.ChanMux_driver);
+        connection seL4SharedData   NwDriver_Chanmux_port_ctrl_2       (from nwDriver_2.port_chanMux_ctrl,       to chanMux.port_nic_2_ctrl);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_read_2  (from nwDriver_2.port_chanMux_data_read,  to chanMux.port_nic_2_data_read);
+        connection seL4SharedData   NwDriver_Chanmux_port_data_write_2 (from nwDriver_2.port_chanMux_data_write, to chanMux.port_nic_2_data_write);
+
+        connection seL4RPCCall      NwDriver2_logServer                (from nwDriver_2.log_server_interface,    to logServer.log_server_interface);
+        connection seL4SharedData   NwDriver2_logServer_data           (from nwDriver_2.logServer_dataport_buf,  to logServer.dataport_buf_nwDriver_2);
+
+
+        //----------------------------------------------------------------------
+        // Network Stack #2
+        //----------------------------------------------------------------------
+        component  NwStack_2              nwStack_2;
+
+        connection seL4NotificationNative NwStackdataAvail2_2 (from nwStack_2.event_internal, to nwStack_2.event_tick_or_data);
+        connection seL4Notification       NwStackEventsRxd1_2 (from nwStack_2.e_write,        to nwStack_2.c_write);
+        connection seL4Notification       NwStackEventsRxd2_2 (from nwStack_2.e_read,         to nwStack_2.c_read);
+        connection seL4Notification       NwStackEventsRxd3_2 (from nwStack_2.e_conn,         to nwStack_2.c_conn);
+
+        connection seL4NotificationNative NwStackdataAvail3_2  (from timerClient.e_timeout_nwstacktick_2,  to nwStack_2.event_tick_or_data);
+
+        connection seL4RPCCall            nwStack2_timerClient (from nwStack_2.Timer,   to timerClient.TimerClient);
+
+        connection seL4NotificationNative NwDriver_NwStack_dataAvail_2       (from nwDriver_2.event_nwstack_hasData, to nwStack_2.event_tick_or_data);
+        connection seL4Notification       NwDriver_NwStack_initdone_2        (from nwDriver_2.event_init_done,       to nwStack_2.event_nic_init_done);
+        connection seL4RPCCall            nwStack_NwDriver_2                 (from nwStack_2.nic_driver,             to nwDriver_2.nic_driver);
+        connection seL4SharedData         NwDriver_NwStack_ReadConnection_2  (from nwDriver_2.port_nwStack_to,       to nwStack_2.port_nic_from);
+        connection seL4SharedData         NwDriver_NwStack_WriteConnection_2 (from nwDriver_2.port_nwStack_from,     to nwStack_2.port_nic_to);
+
+        connection seL4RPCCall            NwStack_configuration_server_2     (from nwStack_2.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
+        connection seL4SharedData         NwStack_config_data_2              (from nwStack_2.cfg_dataport_buf,       to configServer.cfg_dataport_nwStack2);
+
+        connection seL4RPCCall            NwStack_logServer_2                (from nwStack_2.log_server_interface,   to logServer.log_server_interface);
+        connection seL4SharedData         NwStack_logServer_data_2           (from nwStack_2.logServer_dataport_buf, to logServer.dataport_buf_nwStack_2);
 
         //----------------------------------------------------------------------
         // MUX
@@ -204,11 +251,13 @@ assembly {
         sensorTemp.log_server_interface_attributes =         40;
         nwDriver.log_server_interface_attributes =           50;
         nwStack.log_server_interface_attributes =            60;
+        nwStack_2.log_server_interface_attributes =          70;
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
         nwDriver.ChanMuxRpc_attributes = 1;
-        partitionManager.ChanMuxRpc_attributes = 2;
+        nwDriver_2.ChanMuxRpc_attributes = 2;
+        partitionManager.ChanMuxRpc_attributes = 3;
 
         /* timer */
         uartDev.uartRegBase_paddr  = 0xE0000000;

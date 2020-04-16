@@ -134,12 +134,25 @@ init_system_config(system_config_t* systemConfig)
     }
 
     Debug_LOG_DEBUG("Setting %s",
-                    systemConfig->network_stack_config.dev_addr.config_param_name);
+                    systemConfig->network_stack_config.client_addr.config_param_name);
     ret = helper_func_setConfigParameter(&serverLibWithFSBackend,
                                          systemConfig->network_stack_config.config_domain,
-                                         systemConfig->network_stack_config.dev_addr.config_param_name,
-                                         systemConfig->network_stack_config.dev_addr.addr,
-                                         systemConfig->network_stack_config.dev_addr.len);
+                                         systemConfig->network_stack_config.client_addr.config_param_name,
+                                         systemConfig->network_stack_config.client_addr.addr,
+                                         systemConfig->network_stack_config.client_addr.len);
+    if (ret != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("OS_ConfigService_createHandle failed with :%d", ret);
+        return ret;
+    }
+
+    Debug_LOG_DEBUG("Setting %s",
+                    systemConfig->network_stack_config.server_addr.config_param_name);
+    ret = helper_func_setConfigParameter(&serverLibWithFSBackend,
+                                         systemConfig->network_stack_config.config_domain,
+                                         systemConfig->network_stack_config.server_addr.config_param_name,
+                                         systemConfig->network_stack_config.server_addr.addr,
+                                         systemConfig->network_stack_config.server_addr.len);
     if (ret != SEOS_SUCCESS)
     {
         Debug_LOG_ERROR("OS_ConfigService_createHandle failed with :%d", ret);

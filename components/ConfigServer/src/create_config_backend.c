@@ -2,9 +2,12 @@
  * Copyright (C) 2020, Hensoldt Cyber GmbH
  */
 
+#include <string.h>
+#include <stdio.h>
+#include <camkes.h>
 #include "create_config_backend.h"
 
-
+#if defined(OS_CONFIG_SERVICE_BACKEND_FILESYSTEM)
 /* Defines -------------------------------------------------------------------*/
 #define PARTITION_ID            0
 
@@ -12,13 +15,23 @@
 #define DOMAIN_FILE "DOMAIN.BIN"
 #define STRING_FILE "STRING.BIN"
 #define BLOB_FILE "BLOB.BIN"
+#endif
 
+#if defined(OS_CONFIG_SERVICE_BACKEND_MEMORY)
+// Sizes of the buffers are arbitrary but essentially need to fit at least the
+// number of parameters used
+static char parameterBuf[12000];
+static char domainBuf[2000];
+static char stringBuf[2000];
+static char blobBuf[12000];
+#endif
 
 /* Private types -------------------------------------------------------------*/
+#if defined(OS_CONFIG_SERVICE_BACKEND_FILESYSTEM)
 hPartition_t phandle;
 pm_disk_data_t pm_disk_data;
 pm_partition_data_t pm_partition_data;
-
+#endif
 
 static
 void initializeName(char* buf, size_t bufSize, char const* name)
@@ -378,7 +391,7 @@ initializeDomainsAndParameters(OS_ConfigServiceLib_t* configLib)
     // Initialize the parameters
     parameter.parameterType = OS_CONFIG_LIB_PARAMETER_TYPE_STRING;
     initializeName(parameter.parameterName.name, OS_CONFIG_LIB_PARAMETER_NAME_LEN,
-                   ETH_ADDR);
+                   ETH_ADDR_CLIENT);
 
     parameter.parameterValue.valueString.index = 2;
     parameter.parameterValue.valueString.size =
@@ -403,9 +416,10 @@ initializeDomainsAndParameters(OS_ConfigServiceLib_t* configLib)
         return result;
     }
 
+    // Initialize the parameters
     parameter.parameterType = OS_CONFIG_LIB_PARAMETER_TYPE_STRING;
     initializeName(parameter.parameterName.name, OS_CONFIG_LIB_PARAMETER_NAME_LEN,
-                   ETH_GATEWAY_ADDR);
+                   ETH_ADDR_SERVER);
 
     parameter.parameterValue.valueString.index = 3;
     parameter.parameterValue.valueString.size =
@@ -432,7 +446,7 @@ initializeDomainsAndParameters(OS_ConfigServiceLib_t* configLib)
 
     parameter.parameterType = OS_CONFIG_LIB_PARAMETER_TYPE_STRING;
     initializeName(parameter.parameterName.name, OS_CONFIG_LIB_PARAMETER_NAME_LEN,
-                   ETH_SUBNET_MASK);
+                   ETH_GATEWAY_ADDR);
 
     parameter.parameterValue.valueString.index = 4;
     parameter.parameterValue.valueString.size =
@@ -457,13 +471,44 @@ initializeDomainsAndParameters(OS_ConfigServiceLib_t* configLib)
         return result;
     }
 
+    parameter.parameterType = OS_CONFIG_LIB_PARAMETER_TYPE_STRING;
+    initializeName(parameter.parameterName.name, OS_CONFIG_LIB_PARAMETER_NAME_LEN,
+                   ETH_SUBNET_MASK);
+
+    parameter.parameterValue.valueString.index = 5;
+    parameter.parameterValue.valueString.size =
+        OS_CONFIG_LIB_PARAMETER_MAX_STRING_LENGTH;
+    parameter.domain.index = 2;
+    result = OS_ConfigServiceBackend_writeRecord(
+                 &configLib->parameterBackend,
+                 11,
+                 &parameter,
+                 sizeof(parameter));
+    if (result != 0)
+    {
+        return result;
+    }
+    result = OS_ConfigServiceBackend_writeRecord(
+                 &configLib->stringBackend,
+                 parameter.parameterValue.valueString.index,
+                 str,
+                 sizeof(str));
+    if (result != 0)
+    {
+        return result;
+    }
+
     return 0;
 }
 
 seos_err_t
 create_system_config_backend(void)
 {
-
+    OS_ConfigServiceInstanceStore_t* serverInstanceStore =
+        OS_ConfigService_getInstances();
+    OS_ConfigServiceLib_t* configLib =
+        OS_ConfigServiceInstanceStore_getInstance(serverInstanceStore, 0);
+#if defined(OS_CONFIG_SERVICE_BACKEND_FILESYSTEM)
     seos_err_t pm_result = partition_manager_get_info_disk(&pm_disk_data);
     if (pm_result != SEOS_SUCCESS)
     {
@@ -515,11 +560,6 @@ create_system_config_backend(void)
         return SEOS_ERROR_GENERIC;
     }
 
-    OS_ConfigServiceInstanceStore_t* serverInstanceStore =
-        OS_ConfigService_getInstances();
-    OS_ConfigServiceLib_t* configLib =
-        OS_ConfigServiceInstanceStore_getInstance(serverInstanceStore, 0);
-
     // Create the file backends
     Debug_LOG_INFO("Setting up filesystem backend...");
 
@@ -536,6 +576,18 @@ create_system_config_backend(void)
         Debug_LOG_ERROR("initializeFileBackends failed with: %d", result);
         return result;
     }
+#endif
+
+#if defined(OS_CONFIG_SERVICE_BACKEND_MEMORY)
+    // Create the backends in the instance.
+    Debug_LOG_INFO("ConfigServer: Initializing with mem backend...");
+    seos_err_t result = initializeWithMemoryBackends(configLib);
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("initializeWithMemoryBackends failed with: %d", result);
+        return false;
+    }
+#endif
 
     // Create the empty parameters in the instance.
     result = initializeDomainsAndParameters(configLib);
@@ -545,11 +597,13 @@ create_system_config_backend(void)
         return result;
     }
 
+    // Signal the Admin component that the backend is ready.
     config_backend_ready_emit();
 
     return SEOS_SUCCESS;
 }
 
+#if defined(OS_CONFIG_SERVICE_BACKEND_FILESYSTEM)
 seos_err_t
 createFileBackends(hPartition_t phandle)
 {
@@ -572,7 +626,7 @@ createFileBackends(hPartition_t phandle)
     initializeName(name.buffer, OS_CONFIG_BACKEND_MAX_FILE_NAME_LEN,
                    PARAMETER_FILE);
     Debug_LOG_DEBUG("Name.buffer: %s", name.buffer);
-    result = OS_ConfigServiceBackend_createFileBackend(name, phandle, 11,
+    result = OS_ConfigServiceBackend_createFileBackend(name, phandle, 12,
                                                  sizeof(OS_ConfigServiceLibTypes_Parameter_t));
     if (result != SEOS_SUCCESS)
     {
@@ -581,7 +635,7 @@ createFileBackends(hPartition_t phandle)
 
     initializeName(name.buffer, OS_CONFIG_BACKEND_MAX_FILE_NAME_LEN, STRING_FILE);
     Debug_LOG_DEBUG("Name.buffer: %s", name.buffer);
-    result = OS_ConfigServiceBackend_createFileBackend(name, phandle, 5,
+    result = OS_ConfigServiceBackend_createFileBackend(name, phandle, 6,
                                                  OS_CONFIG_LIB_PARAMETER_MAX_STRING_LENGTH);
     if (result != SEOS_SUCCESS)
     {
@@ -661,3 +715,119 @@ seos_err_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
     }
     return result;
 }
+#endif
+
+#if defined(OS_CONFIG_SERVICE_BACKEND_MEMORY)
+static
+seos_err_t
+formatMemoryBackends(OS_ConfigServiceLib_t* configLib)
+{
+    seos_err_t result = 0;
+
+    // Create the memory backends.
+    result = OS_ConfigServiceBackend_createMemBackend(domainBuf, sizeof(domainBuf), 3,
+                                                sizeof(OS_ConfigServiceLibTypes_Domain_t));
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("createMemBackend failed with: %d", result);
+        return result;
+    }
+
+    result = OS_ConfigServiceBackend_createMemBackend(parameterBuf, sizeof(parameterBuf),
+                                                12, sizeof(OS_ConfigServiceLibTypes_Parameter_t));
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("createMemBackend failed with: %d", result);
+        return result;
+    }
+
+    result = OS_ConfigServiceBackend_createMemBackend(
+                 stringBuf,
+                 sizeof(stringBuf),
+                 6,
+                 OS_CONFIG_LIB_PARAMETER_MAX_STRING_LENGTH);
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("createMemBackend failed with: %d", result);
+        return result;
+    }
+
+    result = OS_ConfigServiceBackend_createMemBackend(
+                 blobBuf,
+                 sizeof(blobBuf),
+                 56,
+                 OS_CONFIG_LIB_PARAMETER_MAX_BLOB_BLOCK_LENGTH);
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("createMemBackend failed with: %d", result);
+        return result;
+    }
+    Debug_LOG_DEBUG("Memory backends formatted");
+    return SEOS_SUCCESS;
+}
+
+seos_err_t
+initializeWithMemoryBackends(OS_ConfigServiceLib_t* configLib)
+{
+    seos_err_t result = 0;
+    OS_ConfigServiceBackend_t parameterBackend;
+    OS_ConfigServiceBackend_t domainBackend;
+    OS_ConfigServiceBackend_t stringBackend;
+    OS_ConfigServiceBackend_t blobBackend;
+
+    // Create the memory backends.
+    result = formatMemoryBackends(configLib);
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("formatMemoryBackends failed with: %d", result);
+        return result;
+    }
+
+    // Initialize the backends in the config library object.
+    result = OS_ConfigServiceBackend_initializeMemBackend(&domainBackend, domainBuf,
+                                                    sizeof(domainBuf));
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("initializeMemBackend failed with: %d", result);
+        return result;
+    }
+
+    result = OS_ConfigServiceBackend_initializeMemBackend(&parameterBackend, parameterBuf,
+                                                    sizeof(parameterBuf));
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("initializeMemBackend failed with: %d", result);
+        return result;
+    }
+
+    result = OS_ConfigServiceBackend_initializeMemBackend(&stringBackend, stringBuf,
+                                                    sizeof(stringBuf));
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("initializeMemBackend failed with: %d", result);
+        return result;
+    }
+
+    result = OS_ConfigServiceBackend_initializeMemBackend(&blobBackend, blobBuf,
+                                                    sizeof(blobBuf));
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("initializeMemBackend failed with: %d", result);
+        return result;
+    }
+
+    result = OS_ConfigServiceLib_Init(
+                 configLib,
+                 &parameterBackend,
+                 &domainBackend,
+                 &stringBackend,
+                 &blobBackend);
+    if (result != SEOS_SUCCESS)
+    {
+        Debug_LOG_ERROR("OS_ConfigServiceLib_Init failed with: %d", result);
+        return result;
+    }
+
+    return result;
+}
+#endif

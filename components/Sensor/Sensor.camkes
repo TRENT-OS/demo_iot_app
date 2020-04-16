@@ -8,6 +8,7 @@ import <if_OS_ConfigService.camkes>;
 import "../CloudConnector/CloudConnectorInf.camkes";
 import "../TimeServer/TimeServerInf.camkes";
 import <if_OS_Logger.camkes>;
+import <if_OS_socket.camkes>;
 
 component SensorTemp {
     control;
@@ -34,4 +35,10 @@ component SensorTemp {
     //-------------------------------------------------
     // Admin
     consumes DataAvailableEvent admin_system_config_set;
+
+    //-------------------------------------------------
+    // NwStack
+    uses      if_OS_socket    network_stack_rpc;
+    dataport  Buf             NwAppDataPort;
+    consumes  ServiceReady    event_network_stack_init_done;
 }

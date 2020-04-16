@@ -90,21 +90,21 @@ extern seos_err_t OS_NetworkAPP_RT(
 //==============================================================================
 
 //------------------------------------------------------------------------------
-static
-seos_err_t
-do_tls_handshake(void)
-{
+// static
+// seos_err_t
+// do_tls_handshake(void)
+// {
 
-    seos_err_t ret = SEOS_SUCCESS;
+//     seos_err_t ret = SEOS_SUCCESS;
 
-    if ((ret = glue_tls_handshake() != SEOS_SUCCESS))
-    {
-        Debug_LOG_WARNING("TLS handshake failed with Errno=%i\n", ret);
-        return ret;
-    }
+//     if ((ret = glue_tls_handshake() != SEOS_SUCCESS))
+//     {
+//         Debug_LOG_WARNING("TLS handshake failed with Errno=%i\n", ret);
+//         return ret;
+//     }
 
-    return ret;
-}
+//     return ret;
+// }
 
 //------------------------------------------------------------------------------
 static
@@ -169,21 +169,21 @@ set_mqtt_options(MQTTPacket_connectData* options)
 }
 
 //------------------------------------------------------------------------------
-static int do_mqtt_connect(MQTT_client_t* client,
-                           MQTTPacket_connectData* options)
-{
+// static int do_mqtt_connect(MQTT_client_t* client,
+//                            MQTTPacket_connectData* options)
+// {
 
-    MQTT_connackData_t data;
+//     MQTT_connackData_t data;
 
-    int ret = MQTT_client_connect(client, options, &data, NULL);
-    if (ret != MQTT_SUCCESS)
-    {
-        Debug_LOG_ERROR("MQTT_client_connect() failed with code %d", ret);
-        return -1;
-    }
+//     int ret = MQTT_client_connect(client, options, &data, NULL);
+//     if (ret != MQTT_SUCCESS)
+//     {
+//         Debug_LOG_ERROR("MQTT_client_connect() failed with code %d", ret);
+//         return -1;
+//     }
 
-    return ret;
-}
+//     return ret;
+// }
 
 //------------------------------------------------------------------------------
 static int do_process_publish(CC_FSM_t* self,
@@ -276,6 +276,8 @@ static int do_process_publish(CC_FSM_t* self,
     // make payload point to the temp buffer content
     msg->payload = payloadBuffer;
 
+    printf("Received payload: %s\n", (char*) msg->payload);
+
     return 0;
 }
 
@@ -346,7 +348,7 @@ static int handle_MQTT_PUBLISH(CC_FSM_t* self)
     }
 
     //
-
+#if 0
     ret = MQTT_client_publish(&(self->paho.client),
                               self->tmpDataPublish.szTopic,
                               &(self->tmpDataPublish.msg),
@@ -357,6 +359,7 @@ static int handle_MQTT_PUBLISH(CC_FSM_t* self)
         MQTT_client_disconnect(&self->paho.client);
         return -1;
     }
+#endif
     Debug_LOG_INFO("MQTT publish on WAN successful");
 
     return 0;
@@ -413,7 +416,7 @@ static int handle_CC_FSM_INIT(CC_FSM_t* self)
         Debug_LOG_ERROR("set_mqtt_options() failed with code %d", ret);
         return ret;
     }
-
+#if 0
     Debug_LOG_INFO("Setting TLS to IP:%s Port:%u ...", serverIP, serverPort);
     ret = glue_tls_init(serverIP, serverCert, sizeof(serverCert), serverPort);
     if (ret != SEOS_SUCCESS)
@@ -437,7 +440,7 @@ static int handle_CC_FSM_INIT(CC_FSM_t* self)
         Debug_LOG_ERROR("do_mqtt_connect() failed with code %d", ret);
         return ret;
     }
-
+#endif
     Debug_LOG_INFO("CloudConnector initialized" );
 
     //Unblock the CloudConnector_interface_write
