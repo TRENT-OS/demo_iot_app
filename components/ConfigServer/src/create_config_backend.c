@@ -39,6 +39,13 @@ initializeDomain(OS_ConfigServiceLibTypes_Domain_t* domain, char const* name)
 }
 
 static
+void
+initializeParameter(OS_ConfigServiceLibTypes_Parameter_t* parameter)
+{
+    memset(parameter, 0, sizeof(OS_ConfigServiceLibTypes_Parameter_t));
+}
+
+static
 OS_Error_t
 addInt32Parameter(
     OS_ConfigServiceLib_t* configLib,
@@ -185,6 +192,7 @@ initializeDomainsAndParameters(OS_ConfigServiceLib_t* configLib)
 
     // Initialize the parameters
     OS_ConfigServiceLibTypes_Parameter_t parameter;
+    initializeParameter(&parameter);
     OS_ConfigServiceAccessRights_SetAll(&parameter.readAccess);
     OS_ConfigServiceAccessRights_SetAll(&parameter.writeAccess);
 
