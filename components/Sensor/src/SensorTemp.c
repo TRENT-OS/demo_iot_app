@@ -59,9 +59,6 @@ int run()
         return ret;
     }
 
-    // wait for the init of the admin component
-    admin_system_config_set_wait();
-
     Debug_LOG_INFO("Starting TemperatureSensor...");
 
     ret = helper_func_getConfigParameter(&serverLibWithFSBackend,

@@ -14,7 +14,6 @@ component LogServer {
 
     provides if_OS_Logger            log_server_interface;
 
-    dataport Buf                     dataport_buf_admin;
     dataport Buf                     dataport_buf_configServer;
     dataport Buf                     dataport_buf_cloudConnector;
     dataport Buf                     dataport_buf_sensorTemp;

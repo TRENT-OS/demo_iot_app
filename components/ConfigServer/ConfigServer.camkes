@@ -18,7 +18,6 @@ component ConfigServer {
     dataport Buf cfg_dataport_sensorTemp;
     dataport Buf cfg_dataport_cloudConnector;
     dataport Buf cfg_dataport_nwStack;
-    dataport Buf cfg_dataport_admin;
 
     //-------------------------------------------------
     // PartitionManager

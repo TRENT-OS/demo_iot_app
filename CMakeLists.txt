@@ -21,26 +21,6 @@ target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 project(demo_iot_app C)
 
 DeclareCAmkESComponent(
-    Admin
-    INCLUDES
-        include/util
-    SOURCES
-        components/Admin/src/Admin.c
-        components/Admin/src/set_config_backend.c
-        components/common/common.c
-        include/util/helper_func.c
-    C_FLAGS
-        -Wall -Werror
-        -DOS_CONFIG_SERVICE_CAMKES_CLIENT
-    LIBS
-        system_config
-        os_core_api
-        os_libs
-        os_configuration
-        os_logger
-)
-
-DeclareCAmkESComponent(
     PartitionManager
     SOURCES
         components/PartitionManager/src/PartitionManager.c

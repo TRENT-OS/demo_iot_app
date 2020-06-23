@@ -16,7 +16,6 @@ import "components/TimeServer/TimeServer.camkes";
 import "components/LogServer/LogServer.camkes";
 import "components/NwStack/network_stack.camkes";
 import "components/ConfigServer/ConfigServer.camkes";
-import "components/Admin/Admin.camkes";
 
 #include "system_config.h"
 
@@ -35,22 +34,6 @@ DECLARE_COMPONENT_EntropySource(EntropySource)
 
 assembly {
     composition {
-
-        //----------------------------------------------------------------------
-        // Admin
-        //----------------------------------------------------------------------
-        component  Admin admin;
-
-        connection seL4RPCCall       admin_logServer             (from admin.log_server_interface,   to logServer.log_server_interface);
-        connection seL4SharedData    admin_logServer_data        (from admin.logServer_dataport_buf, to logServer.dataport_buf_admin);
-
-        connection seL4RPCCall       admin_configuration_server  (from admin.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData    admin_config_data           (from admin.cfg_dataport_buf,       to configServer.cfg_dataport_admin);
-
-        connection  seL4Notification nwStack_admin_ready         (from admin.system_config_set, to nwStack.admin_system_config_set);
-        connection  seL4Notification sensorTemp_admin_ready      (from admin.system_config_set, to sensorTemp.admin_system_config_set);
-        connection  seL4Notification cloudCon_admin_ready        (from admin.system_config_set, to cloudConnector.admin_system_config_set);
-
 
         //----------------------------------------------------------------------
         // LogServer
@@ -193,12 +176,11 @@ assembly {
     }
     configuration {
         /* client id's */
-        admin.log_server_interface_attributes =              10;
-        configServer.log_server_interface_attributes =       20;
-        cloudConnector.log_server_interface_attributes =     30;
-        sensorTemp.log_server_interface_attributes =         40;
-        nwDriver.log_server_interface_attributes =           50;
-        nwStack.log_server_interface_attributes =            60;
+        configServer.log_server_interface_attributes =       10;
+        cloudConnector.log_server_interface_attributes =     20;
+        sensorTemp.log_server_interface_attributes =         30;
+        nwDriver.log_server_interface_attributes =           40;
+        nwStack.log_server_interface_attributes =            50;
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>

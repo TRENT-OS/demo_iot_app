@@ -26,8 +26,4 @@ component SensorTemp {
     // interface to log server
     dataport Buf                logServer_dataport_buf;
     uses     if_OS_Logger       log_server_interface;
-
-    //-------------------------------------------------
-    // Admin
-    consumes DataAvailableEvent admin_system_config_set;
 }

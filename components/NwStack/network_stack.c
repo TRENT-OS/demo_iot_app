@@ -31,9 +31,6 @@ static OS_NetworkStack_AddressConfig_t param_config =
 //------------------------------------------------------------------------------
 int run()
 {
-    // wait for the init of the admin component to set the config
-    admin_system_config_set_wait();
-
     Debug_LOG_INFO("[NwStack '%s'] starting", get_instance_name());
 
     // can't make this "static const" or even "static" because the data ports

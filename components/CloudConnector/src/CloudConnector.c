@@ -612,9 +612,6 @@ int run()
 {
     init_network_client_api();
 
-    // wait for the init of the admin component to set the config
-    admin_system_config_set_wait();
-
     Debug_LOG_INFO("Starting CloudConnector...");
 
     CC_FSM_t* self = &cc_fsm;
