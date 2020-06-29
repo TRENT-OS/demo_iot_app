@@ -100,59 +100,6 @@ find_domain(
 //------------------------------------------------------------------------------
 static
 OS_Error_t
-get_parameter_enumerator(
-    OS_ConfigServiceHandle_t handle,
-    const char* DomainName,
-    const char* ParameterName,
-    OS_ConfigServiceLibTypes_ParameterEnumerator_t* parameterEnumerator)
-{
-    OS_Error_t ret;
-
-    OS_ConfigServiceLibTypes_DomainEnumerator_t domainEnumerator = {0};
-    OS_ConfigServiceLibTypes_DomainName_t domainName;
-    OS_ConfigServiceLibTypes_ParameterName_t parameterName;
-    OS_ConfigServiceLibTypes_Domain_t domain = {0};
-
-    initializeDomainName(&domainName, DomainName);
-
-    initializeParameterName(&parameterName, ParameterName);
-
-    ret = find_domain(handle, &domainEnumerator, &domainName, &domain);
-    if (OS_SUCCESS != ret)
-    {
-        Debug_LOG_ERROR("find_domain() failed, ret %d", ret);
-        return OS_ERROR_CONFIG_DOMAIN_NOT_FOUND;
-    }
-
-    ret = OS_ConfigService_domainEnumeratorGetElement(
-              handle,
-              &domainEnumerator,
-              &domain);
-    if (OS_SUCCESS != ret)
-    {
-        Debug_LOG_ERROR("OS_ConfigServiceLibTypes_DomainEnumerator_tGetElement() failed, ret %d",
-                        ret);
-        return OS_ERROR_GENERIC;
-    }
-
-    ret = OS_ConfigService_domainCreateParameterEnumerator(
-              handle,
-              &domain,
-              &parameterName,
-              parameterEnumerator);
-    if (OS_SUCCESS != ret)
-    {
-        Debug_LOG_ERROR("OS_ConfigServiceLibTypes_Domain_tCreateParameterEnumerator() failed, ret %d",
-                        ret);
-        return OS_ERROR_GENERIC;
-    }
-
-    return OS_SUCCESS;
-}
-
-//------------------------------------------------------------------------------
-static
-OS_Error_t
 get_parameter_element(
     OS_ConfigServiceHandle_t handle,
     const char* DomainName,
@@ -229,62 +176,6 @@ helper_func_getConfigParameter(OS_ConfigServiceHandle_t* handle,
     if (OS_SUCCESS != ret)
     {
         Debug_LOG_ERROR("parameterGetValue() failed, ret %d", ret);
-        return ret;
-    }
-
-    return OS_SUCCESS;
-}
-
-//------------------------------------------------------------------------------
-OS_Error_t helper_func_setConfigParameter(OS_ConfigServiceHandle_t* handle,
-                                          const char* DomainName,
-                                          const char* ParameterName,
-                                          const void* parameterValue,
-                                          size_t parameterLength)
-{
-    OS_Error_t ret;
-    OS_ConfigServiceHandle_t configHandle = *handle;
-    OS_ConfigServiceLibTypes_ParameterEnumerator_t parameterEnumerator = {0};
-    OS_ConfigServiceLibTypes_DomainName_t domainName;
-    OS_ConfigServiceLibTypes_ParameterName_t parameterName;
-    OS_ConfigServiceLibTypes_Parameter_t parameter;
-
-    ret = get_parameter_element(
-              configHandle,
-              DomainName,
-              ParameterName,
-              &domainName,
-              &parameterName,
-              &parameter);
-    if (OS_SUCCESS != ret)
-    {
-        Debug_LOG_ERROR("get_parameter_element() failed, ret %d", ret);
-        return ret;
-    }
-
-    ret = get_parameter_enumerator(
-              configHandle,
-              DomainName,
-              ParameterName,
-              &parameterEnumerator);
-    if (OS_SUCCESS != ret)
-    {
-        Debug_LOG_ERROR("get_parameter_enumerator() failed, ret %d", ret);
-        return OS_ERROR_GENERIC;
-    }
-
-    OS_ConfigServiceLibTypes_ParameterType_t parameterType;
-    OS_ConfigService_parameterGetType(&parameter, &parameterType);
-
-    ret = OS_ConfigService_parameterSetValue(
-              configHandle,
-              &parameterEnumerator,
-              parameterType,
-              parameterValue,
-              parameterLength);
-    if (ret < OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("OS_ConfigService_parameterSetValue() failed, ret %d", ret);
         return ret;
     }
 

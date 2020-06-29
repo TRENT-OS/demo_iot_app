@@ -17,11 +17,3 @@ helper_func_getConfigParameter(
     const char* ParameterName,
     void*       parameterBuffer,
     size_t      parameterLength);
-
-OS_Error_t
-helper_func_setConfigParameter(
-    OS_ConfigServiceHandle_t* handle,
-    const char* DomainName,
-    const char* ParameterName,
-    const void* parameterValue,
-    size_t      parameterLength);
