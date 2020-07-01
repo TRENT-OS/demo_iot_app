@@ -8,15 +8,13 @@
  *  component will include this
  *
  */
+#include "ChanMux/ChanMuxHelper.camkes"
 
 //-------------------------------------------------
 // upper interface to Ethernet NIC driver
-dataport       Buf                      nic_port_ctrl;
-dataport       Buf                      nic_port_data_read;
-dataport       Buf                      nic_port_data_write;
-emits          EventDataAvailable       nic_event_hasData;
+DECLARE_CHANMUX_CHANNEL_INTERFACE(nwDriver, ctrl)
+DECLARE_CHANMUX_CHANNEL_INTERFACE(nwDriver, data)
 
 //-------------------------------------------------
 // upper interface to PartitionManager
-dataport       Buf                      pm_port;
-emits          DataAvailableEvent       pm_event_hasData;
+DECLARE_CHANMUX_CHANNEL_INTERFACE(partitionManager, chan)

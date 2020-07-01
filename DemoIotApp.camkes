@@ -23,12 +23,12 @@ import "components/Admin/Admin.camkes";
 #include "UART/Uart.camkes"
 DECLARE_COMPONENT_UART(UART)
 
-#include "NIC_ChanMux/NIC_ChanMux.camkes"
-DECLARE_COMPONENT_NIC_ChanMux(NwDriver)
-
 #define CHANMUX_COMPONENT_NAME  ChanMux
 #define CHANMUX_UPPER_INTERFACES "components/ChanMux/ChanMux_upper_interface.camkes"
 #include "ChanMux/ChanMux.camkes"
+
+#include "NIC_ChanMux/NIC_ChanMux.camkes"
+DECLARE_COMPONENT_NIC_ChanMux(NwDriver)
 
 #include "EntropySource/camkes/EntropySource.camkes"
 DECLARE_COMPONENT_EntropySource(EntropySource)
@@ -67,11 +67,8 @@ assembly {
         // PartitionManager
         //----------------------------------------------------------------------
         component   PartitionManager  partitionManager;
-
-        connection  seL4RPCCall       partitionManger_chanMux      (from partitionManager.chanMux_rpc,  to chanMux.chanMux_rpc);
-        connection  seL4SharedData    partitionManger_chanMux_data (from partitionManager.chanMux_port, to chanMux.pm_port);
-        connection  seL4Notification  dataAvailable_chanMux        (from chanMux.pm_event_hasData,      to partitionManager.chanMux_event_hasData);
-
+        CHANMUX_INSTANCE_CONNECT_INTERFACE(chanMux, partitionManager)
+        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, partitionManager, chan)
 
         //----------------------------------------------------------------------
         // SensorTemp
@@ -118,11 +115,9 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver         nwDriver;
 
-        connection seL4Notification NwDriver_Chanmux_dataAvail       (from chanMux.nic_event_hasData,        to nwDriver.chanMux_event_hasData);
-        connection seL4RPCCall      nwDriver_chanmux                 (from nwDriver.chanMux_rpc,             to chanMux.chanMux_rpc);
-        connection seL4SharedData   NwDriver_Chanmux_port_ctrl       (from nwDriver.chanMux_port_ctrl,       to chanMux.nic_port_ctrl);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_read  (from nwDriver.chanMux_port_data_read,  to chanMux.nic_port_data_read);
-        connection seL4SharedData   NwDriver_Chanmux_port_data_write (from nwDriver.chanMux_port_data_write, to chanMux.nic_port_data_write);
+        CHANMUX_INSTANCE_CONNECT_INTERFACE(chanMux, nwDriver)
+        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, data)
+        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, ctrl)
 
         connection seL4RPCCall      NwDriver_logServer               (from nwDriver.logServer_rpc,  to logServer.log_server_interface);
         connection seL4SharedData   NwDriver_logServer_data          (from nwDriver.logServer_port, to logServer.dataport_buf_nwDriver);
@@ -207,8 +202,8 @@ assembly {
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
-        nwDriver.chanMux_rpc_attributes         = CHANMUX_ID_NIC;
-        partitionManager.chanMux_rpc_attributes = CHANMUX_ID_PM;
+        CHANMUX_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
+        CHANMUX_ASSIGN_CLIENT_BADGE(chanMux, partitionManager, CHANMUX_ID_PM)
 
         CONFIGURE_INSTANCE_UART(
             uartDrv,

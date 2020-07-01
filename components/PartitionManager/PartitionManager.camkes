@@ -8,13 +8,13 @@
 import <if_ChanMux.camkes>;
 import <if_OS_PartitionManager.camkes>;
 
+#include "ChanMux/ChanMuxHelper.camkes"
 
 component PartitionManager {
     provides  partition_manager_interface api_pm_component;
 
-    uses      ChanMuxDriverInf      chanMux_rpc;
-    dataport  Buf                   chanMux_port;
-    consumes  DataAvailableEvent    chanMux_event_hasData;
+    DECLARE_CHANMUX_INTERFACE_USER(chanMux)
+    DECLARE_CHANMUX_CHANNEL_CONNECTOR(chanMux, chan)
 
     dataport  Buf                   pm_dataport_buf_logServer;
     dataport  Buf                   pm_dataport_buf_configServer;

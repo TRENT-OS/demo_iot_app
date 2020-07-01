@@ -6,6 +6,7 @@
 
 #include "system_config.h"
 #include "ChanMux/ChanMux.h"
+#include "ChanMuxNic.h"
 #include <camkes.h>
 
 
@@ -74,29 +75,6 @@ static struct
     ChanMux_Channel_t data;
 } nic_channel[1];
 
-#define CHANNEL_CTX_NIC_CTRL(_id_ , _idx_, _dataport_, _event_) \
-    CHANMUX_CHANNEL_CTX( \
-        _id_, \
-        &(nic_channel[_idx_].ctrl), \
-        nic_fifo[_idx_].ctrl, /* must be the buffer and not a pointer */ \
-        CHANMUX_DATAPORT_DUPLEX_SHARED_ASSIGN(_dataport_), \
-        _event_ \
-    )
-
-
-#define CHANNEL_CTX_NIC_DATA(_id_ , _idx_, _dataport_r_, _dataport_w_, _event_) \
-    CHANMUX_CHANNEL_CTX( \
-        _id_, \
-        &(nic_channel[_idx_].data), \
-        nic_fifo[_idx_].data, /* must be the buffer and not a pointer */ \
-        CHANMUX_DATAPORT_DUPLEX_ASSIGN(_dataport_r_, _dataport_w_), \
-        _event_ \
-    )
-
-#define CHANNELS_CTX_NIC_CTRL_DATA(_id_ctrl_, _id_data_, _idx_, _dataport_ctrl, _dataport_data_r_, _dataport_data_w_, _event_) \
-    CHANNEL_CTX_NIC_CTRL(_id_ctrl_, _idx_, _dataport_ctrl, _event_), \
-    CHANNEL_CTX_NIC_DATA(_id_data_, _idx_, _dataport_data_r_, _dataport_data_w_, _event_)
-
 
 //------------------------------------------------------------------------------
 static uint8_t nvm_fifo[1][PAGE_SIZE];
@@ -112,17 +90,20 @@ static const ChanMux_ChannelCtx_t channelCtx[] =
         CHANMUX_CHANNEL_NIC_CTRL,
         CHANMUX_CHANNEL_NIC_DATA,
         0,
-        nic_port_ctrl,
-        nic_port_data_read,
-        nic_port_data_write,
-        nic_event_hasData_emit),
+        nwDriver_ctrl_portRead,
+        nwDriver_ctrl_portWrite,
+        nwDriver_data_portRead,
+        nwDriver_data_portWrite,
+        nwDriver_ctrl_DataAvailable_emit,
+        nwDriver_data_DataAvailable_emit),
 
     CHANMUX_CHANNEL_CTX(
         CHANMUX_CHANNEL_NVM,
         &nvm_channel[0],
         nvm_fifo[0], // must be the buffer and not a pointer
-        CHANMUX_DATAPORT_DUPLEX_SHARED_ASSIGN(pm_port),
-        pm_event_hasData_emit),
+        CHANMUX_DATAPORT_ASSIGN(partitionManager_chan_portRead,
+                                partitionManager_chan_portWrite),
+        partitionManager_chan_DataAvailable_emit),
 };
 
 
