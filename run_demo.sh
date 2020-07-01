@@ -13,6 +13,8 @@ USAGE_STRING="run_demo.sh <path-to-project-build> <path-to-proxy>\n
 This script starts the Mosquitto Broker and runs the IoT Demo app\n"
 OPT_INTERACTIVE="-it"
 
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+echo ${SCRIPTPATH}
 
 if [ "$1" == "" ]; then
     echo -e "${USAGE_STRING}"
@@ -21,6 +23,7 @@ fi
 
 PROJECT_PATH=$1
 PROXY_PATH=$2
+CPT_PATH=$3
 
 if [ -z ${PROJECT_PATH} ]; then
     echo "ERROR: missing project path"
@@ -39,7 +42,17 @@ if [ ! -f ${PROXY_PATH}/proxy_app ]; then
     exit 1
 fi
 
-shift 2
+if [ ! -f ${CPT_PATH}/cpt ]; then
+    echo "ERROR: config provisioning tool path missing!"
+    exit 1
+fi
+
+shift 3
+
+# create provisioned partition from XML file
+echo "Creating provisioned partition"
+${CPT_PATH}/cpt -i ${SCRIPTPATH}/configuration/config.xml -o nvm_06
+sleep 1
 
 QEMU_PARAMS=(
     -machine xilinx-zynq-a9
