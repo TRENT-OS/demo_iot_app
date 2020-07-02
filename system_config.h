@@ -163,7 +163,7 @@ static const Partition_cat_t partition_conf =
 #define CLOUD_DOMAIN_VALUE      "{your_MQTT_Username}"
 
 #define SERVER_ADDRESS_NAME     "CloudServiceIP"
-#define SERVER_ADDRESS_VALUE    "172.17.0.2"
+#define SERVER_ADDRESS_VALUE "10.0.0.1"
 
 #define CLOUD_SAS_NAME          "SharedAccessSignature"
 /* The Azure Cloud uses a Shared access signature as the MQTT password. Please
