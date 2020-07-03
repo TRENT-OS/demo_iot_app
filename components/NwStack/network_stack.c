@@ -10,7 +10,7 @@
 #include "LibDebug/Debug.h"
 
 #include "OS_Error.h"
-#include "OS_NetworkStackConf.h"
+#include "OS_NetworkStack.h"
 #include "OS_ConfigService.h"
 #include "OS_Dataport.h"
 #include "helper_func.h"
