@@ -9,49 +9,24 @@
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-USAGE_STRING="run_demo.sh <path-to-project-build> <path-to-proxy>\n
-This script starts the Mosquitto Broker and runs the IoT Demo app\n"
-OPT_INTERACTIVE="-it"
-
-SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-echo ${SCRIPTPATH}
-
-if [ "$1" == "" ]; then
-    echo -e "${USAGE_STRING}"
-    exit 1
-fi
+CURRENT_SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
+DIR_BIN_SDK=${CURRENT_SCRIPT_DIR}/../../../bin
 
 PROJECT_PATH=$1
-PROXY_PATH=$2
-CPT_PATH=$3
 
 if [ -z ${PROJECT_PATH} ]; then
-    echo "ERROR: missing project path"
+    echo "ERROR: missing path to project build!"
+    echo "Usage: ./run_demo.sh <path-to-project-build>"
     exit 1
 fi
 
-# default is the zynq7000 platform
+shift 1
+
 IMAGE_PATH=${PROJECT_PATH}/images/capdl-loader-image-arm-zynq7000
-if [ ! -f ${IMAGE_PATH} ]; then
-    echo "ERROR: missing project image ${IMAGE_PATH}"
-    exit 1
-fi
-
-if [ ! -f ${PROXY_PATH}/proxy_app ]; then
-    echo "ERROR: proxy application path missing!"
-    exit 1
-fi
-
-if [ ! -f ${CPT_PATH}/cpt ]; then
-    echo "ERROR: config provisioning tool path missing!"
-    exit 1
-fi
-
-shift 3
 
 # create provisioned partition from XML file
-echo "Creating provisioned partition"
-${CPT_PATH}/cpt -i ${SCRIPTPATH}/configuration/config.xml -o nvm_06
+echo "Creating configuration provisioned partition"
+${DIR_BIN_SDK}/cpt -i ${CURRENT_SCRIPT_DIR}/configuration/config.xml -o nvm_06
 sleep 1
 
 QEMU_PARAMS=(
@@ -64,16 +39,12 @@ QEMU_PARAMS=(
     -kernel ${IMAGE_PATH}
 )
 
-#run the Mosquitto MQTT broker
-mosquitto -c /etc/mosquitto/mosquitto.conf > mosquitto_log.txt &
-sleep 1
-
 # run QEMU
 qemu-system-arm  ${QEMU_PARAMS[@]} $@ 2> qemu_stderr.txt &
 sleep 1
 
 # start proxy app
-${PROXY_PATH}/proxy_app -c TCP:4444 -t 1  > proxy_app.out &
+${DIR_BIN_SDK}/proxy_app -c TCP:4444 -t 1  > proxy_app.out &
 sleep 1
 
 fg
