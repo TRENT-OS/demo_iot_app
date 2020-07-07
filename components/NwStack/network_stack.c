@@ -16,6 +16,15 @@
 #include "helper_func.h"
 #include <camkes.h>
 
+/* Defines -------------------------------------------------------------------*/
+// the following defines are the parameter names that need to match the settings
+// in the configuration xml file. These will be passed to the configServer
+// component to retrieve the settings for the specified parameter
+#define DOMAIN_NWSTACK          "Domain-NwStack"
+#define ETH_ADDR                "ETH_ADDR"
+#define ETH_GATEWAY_ADDR        "ETH_GATEWAY_ADDR"
+#define ETH_SUBNET_MASK         "ETH_SUBNET_MASK"
+
 // use network stack params configured in config server.
 char DEV_ADDR[20];
 char GATEWAY_ADDR[20];

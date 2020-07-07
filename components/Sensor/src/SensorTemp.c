@@ -17,6 +17,13 @@
 #include "time.h"
 
 /* Defines -------------------------------------------------------------------*/
+// the following defines are the parameter names that need to match the settings
+// in the configuration xml file. These will be passed to the configServer
+// component to retrieve the settings for the specified parameter
+#define DOMAIN_SENSOR           "Domain-Sensor"
+#define MQTT_PAYLOAD_NAME       "MQTT_Payload" // _NAME defines are stored together with the values in the config file
+#define MQTT_TOPIC_NAME         "MQTT_Topic"
+
 #define SECS_TO_SLEEP   5
 #define S_IN_MSEC       1000
 

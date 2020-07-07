@@ -60,7 +60,7 @@ DeclareCAmkESComponent(
     ConfigServer
     SOURCES
         components/ConfigServer/src/ConfigServer.c
-        components/ConfigServer/src/create_config_backend.c
+        components/ConfigServer/src/init_config_backend.c
         components/common/common.c
     C_FLAGS
         -Wall

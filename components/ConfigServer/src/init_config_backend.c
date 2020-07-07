@@ -2,7 +2,7 @@
  * Copyright (C) 2020, Hensoldt Cyber GmbH
  */
 
-#include "create_config_backend.h"
+#include "init_config_backend.h"
 
 
 /* Defines -------------------------------------------------------------------*/
@@ -25,53 +25,7 @@ void initializeName(char* buf, size_t bufSize, char const* name)
     strncpy(buf, name, bufSize - 1);
 }
 
-OS_Error_t
-create_system_config_backend(void)
-{
-    OS_Error_t pm_result = OS_PartitionManager_getInfoPartition(PARTITION_ID,
-                                                     &pm_partition_data);
-    if (pm_result != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("Fail to get partition info: %d!",
-                        pm_partition_data.partition_id);
-        return OS_ERROR_GENERIC;
-    }
-
-    OS_Error_t fs_result = OS_Filesystem_init(pm_partition_data.partition_id, 0);
-    if (fs_result != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("Fail to init partition: %d!", fs_result);
-        return fs_result;
-    }
-
-    if ( (phandle = OS_Filesystem_open(pm_partition_data.partition_id)) < 0)
-    {
-        Debug_LOG_ERROR("Fail to open partition: %d!", pm_partition_data.partition_id);
-        return OS_ERROR_GENERIC;
-    }
-
-    if (OS_Filesystem_mount(phandle) != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("Fail to mount filesystem on partition: %d!",
-                        pm_partition_data.partition_id);
-        return OS_ERROR_GENERIC;
-    }
-
-    OS_ConfigServiceInstanceStore_t* serverInstanceStore =
-        OS_ConfigService_getInstances();
-    OS_ConfigServiceLib_t* configLib =
-        OS_ConfigServiceInstanceStore_getInstance(serverInstanceStore, 0);
-
-    OS_Error_t err = initializeFileBackends(configLib, phandle);
-    if (err != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("initializeFileBackends() failed with: %d", err);
-        return err;
-    }
-
-    return OS_SUCCESS;
-}
-
+static
 OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
                                   hPartition_t phandle)
 {
@@ -150,6 +104,53 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
     }
 
     Debug_LOG_INFO("File backends initialized.");
+
+    return OS_SUCCESS;
+}
+
+OS_Error_t
+init_system_config_backend(void)
+{
+    OS_Error_t pm_result = OS_PartitionManager_getInfoPartition(PARTITION_ID,
+                                                     &pm_partition_data);
+    if (pm_result != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("Fail to get partition info: %d!",
+                        pm_partition_data.partition_id);
+        return OS_ERROR_GENERIC;
+    }
+
+    OS_Error_t fs_result = OS_Filesystem_init(pm_partition_data.partition_id, 0);
+    if (fs_result != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("Fail to init partition: %d!", fs_result);
+        return fs_result;
+    }
+
+    if ( (phandle = OS_Filesystem_open(pm_partition_data.partition_id)) < 0)
+    {
+        Debug_LOG_ERROR("Fail to open partition: %d!", pm_partition_data.partition_id);
+        return OS_ERROR_GENERIC;
+    }
+
+    if (OS_Filesystem_mount(phandle) != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("Fail to mount filesystem on partition: %d!",
+                        pm_partition_data.partition_id);
+        return OS_ERROR_GENERIC;
+    }
+
+    OS_ConfigServiceInstanceStore_t* serverInstanceStore =
+        OS_ConfigService_getInstances();
+    OS_ConfigServiceLib_t* configLib =
+        OS_ConfigServiceInstanceStore_getInstance(serverInstanceStore, 0);
+
+    OS_Error_t err = initializeFileBackends(configLib, phandle);
+    if (err != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("initializeFileBackends() failed with: %d", err);
+        return err;
+    }
 
     return OS_SUCCESS;
 }

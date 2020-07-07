@@ -8,16 +8,16 @@
 #include <camkes.h>
 
 #include "LibDebug/Debug.h"
-#include "create_config_backend.h"
+#include "init_config_backend.h"
 
 void post_init(void)
 {
     Debug_LOG_INFO("Starting ConfigServer...");
 
-    OS_Error_t err = create_system_config_backend();
+    OS_Error_t err = init_system_config_backend();
     if (err != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("create_system_config_backend() failed with:%d", err);
+        Debug_LOG_ERROR("init_system_config_backend() failed with:%d", err);
         return;
     }
 

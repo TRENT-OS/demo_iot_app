@@ -1,0 +1,101 @@
+<!--
+SUPPORTED PARAMETER TYPES: int32 | int64 | string | blob
+
+string values and the parameter and domain names can have a maximum length
+of 32 bytes.
+-->
+<domains>
+    <domain name = 'Domain-Sensor'>
+                <param_name>MQTT_Payload</param_name>
+                  <type>blob</type>
+                  <access_policy>
+                    <read>true</read>
+                    <write>false</write>
+                  </access_policy>
+                  <value>/sensor_mqtt_payload</value>
+
+                <param_name>MQTT_Topic</param_name>
+                  <type>blob</type>
+                  <access_policy>
+                    <read>true</read>
+                    <write>false</write>
+                  </access_policy>
+                  <value>/sensor_mqtt_topic</value>
+    </domain>
+
+    <domain name = 'Domain-CloudConnector'>
+                <param_name>ServerPort</param_name>
+                  <type>int32</type>
+                  <access_policy>
+                      <read>true</read>
+                      <write>false</write>
+                  </access_policy>
+                  <value>8883</value>
+
+                <param_name>SharedAccessSignature</param_name>
+                  <type>blob</type>
+                  <access_policy>
+                      <read>true</read>
+                      <write>false</write>
+                  </access_policy>
+                  <value>/cloudConnector_SharedAccessSignature</value>
+
+                <param_name>IoT-Hub</param_name>
+                  <type>blob</type>
+                  <access_policy>
+                      <read>true</read>
+                      <write>false</write>
+                  </access_policy>
+                  <value>/cloudConnector_cloudDomain</value>
+
+                <param_name>CloudServiceIP</param_name>
+                  <type>string</type>
+                  <access_policy>
+                    <read>true</read>
+                    <write>false</write>
+                  </access_policy>
+                  <value>10.0.0.1</value>
+
+                <param_name>IoT-Device</param_name>
+                  <type>string</type>
+                  <access_policy>
+                    <read>true</read>
+                    <write>false</write>
+                  </access_policy>
+                  <value>TempSensor_01</value>
+
+                <param_name>ServerCaCert</param_name>
+                  <type>blob</type>
+                  <access_policy>
+                    <read>true</read>
+                    <write>false</write>
+                  </access_policy>
+                  <value>/cloudConnector_ServerCACert.pem</value>
+    </domain>
+
+    <domain name = 'Domain-NwStack'>
+                <param_name>ETH_ADDR</param_name>
+                  <type>string</type>
+                  <access_policy>
+                    <read>true</read>
+                    <write>false</write>
+                  </access_policy>
+                  <value>10.0.0.11</value>
+
+                <param_name>ETH_GATEWAY_ADDR</param_name>
+                  <type>string</type>
+                  <access_policy>
+                    <read>true</read>
+                    <write>false</write>
+                  </access_policy>
+                  <value>10.0.0.1</value>
+
+                <param_name>ETH_SUBNET_MASK</param_name>
+                  <type>string</type>
+                  <access_policy>
+                    <read>true</read>
+                    <write>false</write>
+                  </access_policy>
+                  <value>255.255.255.0</value>
+    </domain>
+</domains>

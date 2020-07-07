@@ -20,6 +20,18 @@
 #include "LibUtil/managedBuffer.h"
 
 /* Defines -------------------------------------------------------------------*/
+// the following defines are the parameter names that need to match the settings
+// in the configuration xml file. These will be passed to the configServer
+// component to retrieve the settings for the specified parameter
+#define DOMAIN_CLOUDCONNECTOR   "Domain-CloudConnector"
+#define CLOUD_DEVICE_ID_NAME    "IoT-Device"
+#define CLOUD_DOMAIN_NAME       "IoT-Hub"
+#define SERVER_ADDRESS_NAME     "CloudServiceIP"
+#define CLOUD_SAS_NAME          "SharedAccessSignature"
+#define SERVER_PORT_NAME        "ServerPort"
+#define SERVER_CA_CERT_NAME     "ServerCaCert"
+
+
 #define PAHO_TIMEOUT_MS_LISTEN   (1000 * 60 * 5)
 #define PAHO_TIMEOUT_MS_COMMAND  (1000 * 60 * 5)
 #define PAHO_SEND_BUFF_SIZE      1024
