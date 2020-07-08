@@ -103,12 +103,10 @@ int run()
     // Create a handle to the remote library instance.
     OS_ConfigServiceHandle_t serverLibWithFSBackend;
 
-    ret = OS_ConfigService_createHandle(OS_CONFIG_HANDLE_KIND_RPC,
-                                        0,
-                                        &serverLibWithFSBackend);
+    ret = OS_ConfigService_createHandleRemote(0, &serverLibWithFSBackend);
     if (ret != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("OS_ConfigService_createHandle() failed with :%d", ret);
+        Debug_LOG_ERROR("OS_ConfigService_createHandleRemote() failed with :%d", ret);
         return ret;
     }
 

@@ -35,13 +35,12 @@ static char topic[128];
 static OS_Error_t
 initializeSensor(void)
 {
-    OS_Error_t err = OS_ConfigService_createHandle(
-                         OS_CONFIG_HANDLE_KIND_RPC,
+    OS_Error_t err = OS_ConfigService_createHandleRemote(
                          0,
                          &serverLibWithFSBackend);
     if (err != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("OS_ConfigService_createHandle() failed with :%d", err);
+        Debug_LOG_ERROR("OS_ConfigService_createHandleRemote() failed with :%d", err);
         return err;
     }
 
