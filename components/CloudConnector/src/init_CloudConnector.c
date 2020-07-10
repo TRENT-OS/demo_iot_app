@@ -16,8 +16,13 @@ OS_ConfigServiceHandle_t serverLibWithMemBackend;
 OS_Error_t
 init_config_handle(OS_ConfigServiceHandle_t* configHandle)
 {
+    static OS_ConfigService_ClientCtx_t ctx =
+    {
+        .dataport = OS_DATAPORT_ASSIGN(cfg_dataport_buf)
+    };
     OS_Error_t err = OS_ConfigService_createHandleRemote(
                          0,
+                         &ctx,
                          configHandle);
     if (err != OS_SUCCESS)
     {

@@ -35,8 +35,13 @@ static char topic[128];
 static OS_Error_t
 initializeSensor(void)
 {
+    static OS_ConfigService_ClientCtx_t ctx =
+    {
+        .dataport = OS_DATAPORT_ASSIGN(cfg_dataport_buf)
+    };
     OS_Error_t err = OS_ConfigService_createHandleRemote(
                          0,
+                         &ctx,
                          &serverLibWithFSBackend);
     if (err != OS_SUCCESS)
     {
