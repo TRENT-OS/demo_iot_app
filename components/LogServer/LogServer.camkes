@@ -5,7 +5,7 @@
 */
 
 
-import <if_OS_PartitionManager.camkes>;
+import <if_OS_Storage.camkes>;
 import <if_OS_Logger.camkes>;
 import "../TimeServer/TimeServerInf.camkes";
 
@@ -22,7 +22,7 @@ component LogServer {
 
     uses     time_server_inf         api_time_server;
 
-    uses partition_manager_interface api_pm_component;
-    dataport Buf                     pm_dataport_buf;
+    uses     if_OS_Storage           storage_rpc;
+    dataport Buf                     storage_dp;
 
 }

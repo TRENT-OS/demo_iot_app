@@ -6,6 +6,7 @@
 
 #include "LibDebug/Debug.h"
 
+#include "OS_FileSystem.h"
 #include "OS_ConfigService.h"
 
 

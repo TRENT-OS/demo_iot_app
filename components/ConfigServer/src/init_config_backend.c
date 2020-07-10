@@ -2,12 +2,13 @@
  * Copyright (C) 2020, Hensoldt Cyber GmbH
  */
 
+#include <string.h>
+#include <camkes.h>
+
 #include "init_config_backend.h"
 
 
 /* Defines -------------------------------------------------------------------*/
-#define PARTITION_ID            0
-
 #define PARAMETER_FILE "PARAM.BIN"
 #define DOMAIN_FILE "DOMAIN.BIN"
 #define STRING_FILE "STRING.BIN"
@@ -15,8 +16,15 @@
 
 
 /* Private types -------------------------------------------------------------*/
-hPartition_t phandle;
-OS_PartitionManagerDataTypes_PartitionData_t pm_partition_data;
+
+static OS_FileSystem_Config_t cfg =
+{
+    .type = OS_FileSystem_Type_LITTLEFS,
+    .size = OS_FileSystem_STORAGE_MAX,
+    .storage = OS_FILESYSTEM_ASSIGN_Storage(
+        storage_rpc,
+        storage_dp),
+};
 
 static
 void initializeName(char* buf, size_t bufSize, char const* name)
@@ -27,7 +35,7 @@ void initializeName(char* buf, size_t bufSize, char const* name)
 
 static
 OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
-                                  hPartition_t phandle)
+                                  OS_FileSystem_Handle_t hFs)
 {
     OS_ConfigServiceBackend_t parameterBackend;
     OS_ConfigServiceBackend_t domainBackend;
@@ -42,7 +50,7 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
     OS_Error_t err = OS_ConfigServiceBackend_initializeFileBackend(
                          &domainBackend,
                          name,
-                         phandle);
+                         hFs);
     Debug_LOG_DEBUG("Domain name: %s", name.buffer);
     if (err != OS_SUCCESS)
     {
@@ -56,7 +64,7 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
     err = OS_ConfigServiceBackend_initializeFileBackend(
               &parameterBackend,
               name,
-              phandle);
+              hFs);
     if (err != OS_SUCCESS)
     {
         Debug_LOG_ERROR("OS_ConfigServiceBackend_initializeFileBackend() for file %s failed with: %d",
@@ -69,7 +77,7 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
     err = OS_ConfigServiceBackend_initializeFileBackend(
               &stringBackend,
               name,
-              phandle);
+              hFs);
     if (err != OS_SUCCESS)
     {
         Debug_LOG_ERROR("OS_ConfigServiceBackend_initializeFileBackend() for file %s failed with: %d",
@@ -82,7 +90,7 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
     err = OS_ConfigServiceBackend_initializeFileBackend(
               &blobBackend,
               name,
-              phandle);
+              hFs);
     if (err != OS_SUCCESS)
     {
         Debug_LOG_ERROR("OS_ConfigServiceBackend_initializeFileBackend() for file %s failed with: %d",
@@ -111,33 +119,20 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
 OS_Error_t
 init_system_config_backend(void)
 {
-    OS_Error_t pm_result = OS_PartitionManager_getInfoPartition(PARTITION_ID,
-                                                     &pm_partition_data);
-    if (pm_result != OS_SUCCESS)
+    OS_FileSystem_Handle_t hFs;
+
+    OS_Error_t err = OS_FileSystem_init(&hFs, &cfg);
+    if (err != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("Fail to get partition info: %d!",
-                        pm_partition_data.partition_id);
-        return OS_ERROR_GENERIC;
+        Debug_LOG_ERROR("OS_FileSystem_init() failed with %d.", err);
+        return err;
     }
 
-    OS_Error_t fs_result = OS_Filesystem_init(pm_partition_data.partition_id, 0);
-    if (fs_result != OS_SUCCESS)
+    err = OS_FileSystem_mount(hFs);
+    if (err != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("Fail to init partition: %d!", fs_result);
-        return fs_result;
-    }
-
-    if ( (phandle = OS_Filesystem_open(pm_partition_data.partition_id)) < 0)
-    {
-        Debug_LOG_ERROR("Fail to open partition: %d!", pm_partition_data.partition_id);
-        return OS_ERROR_GENERIC;
-    }
-
-    if (OS_Filesystem_mount(phandle) != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("Fail to mount filesystem on partition: %d!",
-                        pm_partition_data.partition_id);
-        return OS_ERROR_GENERIC;
+        Debug_LOG_ERROR("OS_FileSystem_mount() failed with %d.", err);
+        return err;
     }
 
     OS_ConfigServiceInstanceStore_t* serverInstanceStore =
@@ -145,7 +140,7 @@ init_system_config_backend(void)
     OS_ConfigServiceLib_t* configLib =
         OS_ConfigServiceInstanceStore_getInstance(serverInstanceStore, 0);
 
-    OS_Error_t err = initializeFileBackends(configLib, phandle);
+    err = initializeFileBackends(configLib, hFs);
     if (err != OS_SUCCESS)
     {
         Debug_LOG_ERROR("initializeFileBackends() failed with: %d", err);

@@ -48,7 +48,7 @@ resolveChannel(
         }
         break;
     //----------------------------------
-    case CHANMUX_ID_PM:
+    case CHANMUX_ID_STORAGE:
         // TODO: check that chanNum_local is 0, reject anything else
         return CHANMUX_CHANNEL_NVM;
     //----------------------------------
@@ -101,9 +101,9 @@ static const ChanMux_ChannelCtx_t channelCtx[] =
         CHANMUX_CHANNEL_NVM,
         &nvm_channel[0],
         nvm_fifo[0], // must be the buffer and not a pointer
-        CHANMUX_DATAPORT_ASSIGN(partitionManager_chan_portRead,
-                                partitionManager_chan_portWrite),
-        partitionManager_chan_DataAvailable_emit),
+        CHANMUX_DATAPORT_ASSIGN(chanMuxStorage_chan_portRead,
+                                chanMuxStorage_chan_portWrite),
+        chanMuxStorage_chan_DataAvailable_emit),
 };
 
 

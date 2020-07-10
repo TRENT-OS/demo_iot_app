@@ -8,7 +8,6 @@ import <std_connector.camkes>;
 
 import <if_OS_EntropySource.camkes>;
 
-import "components/PartitionManager/PartitionManager.camkes";
 import "components/Sensor/Sensor.camkes";
 import "components/CloudConnector/CloudConnector.camkes";
 import "components/TimerClient/TimerClient.camkes";
@@ -26,11 +25,16 @@ DECLARE_COMPONENT_UART(UART)
 #define CHANMUX_UPPER_INTERFACES "components/ChanMux/ChanMux_upper_interface.camkes"
 #include "ChanMux/ChanMux.camkes"
 
+#include "ChanMux_Storage/ChanMux_Storage.camkes"
+
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver)
 
 #include "EntropySource/camkes/EntropySource.camkes"
 DECLARE_COMPONENT_EntropySource(EntropySource)
+
+#include "StorageServer/camkes/StorageServer.camkes"
+DECLARE_COMPONENT_StorageServer(StorageServer)
 
 assembly {
     composition {
@@ -42,16 +46,6 @@ assembly {
 
         connection seL4RPCCall      logServer_timeServer                (from logServer.api_time_server, to timeServer.api_time_server);
 
-        connection seL4RPCCall      logServer_partitionManager_inf      (from logServer.api_pm_component, to partitionManager.api_pm_component);
-        connection seL4SharedData   logServer_partitionManager_data     (from logServer.pm_dataport_buf,  to partitionManager.pm_dataport_buf_logServer);
-
-
-        //----------------------------------------------------------------------
-        // PartitionManager
-        //----------------------------------------------------------------------
-        component   PartitionManager  partitionManager;
-        CHANMUX_INSTANCE_CONNECT_INTERFACE(chanMux, partitionManager)
-        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, partitionManager, chan)
 
         //----------------------------------------------------------------------
         // SensorTemp
@@ -137,6 +131,7 @@ assembly {
         //----------------------------------------------------------------------
         DECLARE_AND_CONNECT_INSTANCE_CHANMUX_TO_UART(ChanMux, chanMux, uartDrv)
 
+
         //----------------------------------------------------------------------
         // TimerClient
         //----------------------------------------------------------------------
@@ -161,18 +156,32 @@ assembly {
         //----------------------------------------------------------------------
         component   ConfigServer     configServer;
 
-        connection  seL4RPCCall      configServer_pm                   (from configServer.api_pm_component, to partitionManager.api_pm_component);
-        connection  seL4SharedData   configServer_pm_data              (from configServer.pm_dataport_buf,  to partitionManager.pm_dataport_buf_configServer);
-
         connection  seL4RPCCall      configServer_logServer            (from configServer.log_server_interface,   to logServer.log_server_interface);
         connection  seL4SharedData   configServer_logServer_data       (from configServer.logServer_dataport_buf, to logServer.dataport_buf_configServer);
 
+
+        //----------------------------------------------------------------------
+        // ChanMuxStorage
+        //----------------------------------------------------------------------
+        component   ChanMux_Storage     chanMuxStorage;
+
+        CHANMUX_INSTANCE_CONNECT_INTERFACE(chanMux, chanMuxStorage)
+        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, chanMuxStorage, chan)
 
         //----------------------------------------------------------------------
         // UART
         //----------------------------------------------------------------------
         DECLARE_AND_CONNECT_INSTANCE_UART(
             UART, uartDrv)
+
+        //----------------------------------------------------------------------
+        // StorageServer
+        //----------------------------------------------------------------------
+        DECLARE_AND_CONNECT_INSTANCE_StorageServer(
+            StorageServer, storageServer,
+            chanMuxStorage.storage_rpc, chanMuxStorage.storage_port,
+            configServer.storage_rpc, configServer.storage_dp,
+            logServer.storage_rpc, logServer.storage_dp)
     }
     configuration {
         /* client id's */
@@ -185,12 +194,17 @@ assembly {
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
         CHANMUX_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
-        CHANMUX_ASSIGN_CLIENT_BADGE(chanMux, partitionManager, CHANMUX_ID_PM)
+        CHANMUX_ASSIGN_CLIENT_BADGE(chanMux, chanMuxStorage, CHANMUX_ID_STORAGE)
 
         CONFIGURE_INSTANCE_UART(
             uartDrv,
             CFG_CHANMUX_DEFAULT_UART_PHYS_ADDR,
             CFG_CHANMUX_DEFAULT_UART_INTR)
+
+        CONFIGURE_INSTANCE_StorageServer(
+            storageServer,
+            0, 1*1024*1024,
+            1*1024*1024, 1*1024*1024)
 
         /* timer */
         timebase.reg_paddr = 0xF8001000;    // paddr of mmio registers
@@ -202,6 +216,9 @@ assembly {
         timeServer.sem_ticks_value = 0;
         timeServer.sem_sleep_value = 0;
         cloudConnector.sem_value = 0;
+
+        configServer.storage_rpc_attributes = 1;
+        logServer.storage_rpc_attributes = 2;
     }
 }
 

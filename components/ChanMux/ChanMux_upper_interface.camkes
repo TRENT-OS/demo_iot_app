@@ -16,5 +16,5 @@ DECLARE_CHANMUX_CHANNEL_INTERFACE(nwDriver, ctrl)
 DECLARE_CHANMUX_CHANNEL_INTERFACE(nwDriver, data)
 
 //-------------------------------------------------
-// upper interface to PartitionManager
-DECLARE_CHANMUX_CHANNEL_INTERFACE(partitionManager, chan)
+// upper interface to storage
+DECLARE_CHANMUX_CHANNEL_INTERFACE(chanMuxStorage, chan)

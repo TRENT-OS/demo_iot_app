@@ -21,22 +21,6 @@ target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 project(demo_iot_app C)
 
 DeclareCAmkESComponent(
-    PartitionManager
-    SOURCES
-        components/PartitionManager/src/PartitionManager.c
-    C_FLAGS
-        -Wall
-        -Werror
-        -DOS_PARTITION_MANAGER_BUILD_AS_COMPONENT
-    LIBS
-        system_config
-        os_libs
-        os_partition_manager
-        os_logger
-        proxy_nvm
-)
-
-DeclareCAmkESComponent(
     SensorTemp
     INCLUDES
         include/util
@@ -66,19 +50,13 @@ DeclareCAmkESComponent(
         -Wall
         -Werror
         -DOS_CONFIG_SERVICE_BACKEND_FILESYSTEM
-        #-DCONFIG_SERVER_BACKEND_MEMORY
-        -DOS_FS_BUILD_AS_LIB_BASIC_HANDLE
-        -DOS_PARTITION_MANAGER_BUILD_AS_COMPONENT
         -DOS_CONFIG_SERVICE_CAMKES_SERVER
     LIBS
         system_config
         os_libs
         os_core_api
         os_configuration
-        os_partition_manager_api
-        os_filesystem_core
-        os_filesystem_fat
-        os_filesystem_spiffs
+        os_filesystem
         os_logger
 )
 
@@ -89,17 +67,12 @@ DeclareCAmkESComponent(
     C_FLAGS
         -Wall
         -Werror
-        -DOS_FS_BUILD_AS_LIB_BASIC_HANDLE
-        -DOS_PARTITION_MANAGER_BUILD_AS_COMPONENT
     LIBS
         system_config
         os_core_api
         os_libs
         os_log_server_backend_filesystem
-        os_partition_manager_api
-        os_filesystem_core
-        os_filesystem_fat
-        os_filesystem_spiffs
+        os_filesystem
 )
 
 DeclareCAmkESComponent(
@@ -130,12 +103,6 @@ DeclareCAmkESComponent(
         os_network_api
 )
 
-DeclareCAmkESComponent_ChanMux(
-    ChanMux
-    components/ChanMux/ChanMux.c
-    system_config
-)
-
 DeclareCAmkESComponent(
     NwStack
     INCLUDES
@@ -164,6 +131,20 @@ DeclareCAmkESComponent_NIC_ChanMux(
     NwDriver
     CHANMUX_CHANNEL_NIC_CTRL
     CHANMUX_CHANNEL_NIC_DATA
+)
+
+DeclareCAmkESComponent_StorageServer(
+    StorageServer
+)
+
+DeclareCAmkESComponent_ChanMux_Storage(
+    ChanMux_Storage
+)
+
+DeclareCAmkESComponent_ChanMux(
+    ChanMux
+    components/ChanMux/ChanMux_config.c
+    system_config
 )
 
 DeclareCAmkESComponent_UART(

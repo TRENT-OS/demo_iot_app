@@ -17,8 +17,7 @@
 
 #include "Logger/Client/OS_LoggerEmitter.h"
 
-#include "OS_Filesystem.h"
-#include "OS_PartitionManager.h"
+#include "OS_FileSystem.h"
 
 #include <stdio.h>
 
@@ -68,59 +67,38 @@ static OS_LoggerSubject_Handle_t subject_log_server;
 static OS_LoggerOutput_Handle_t console_log_server;
 static char buf_log_server[DATABUFFER_SIZE];
 
+static OS_FileSystem_Handle_t hFs;
+static OS_FileSystem_Config_t cfgFs =
+{
+    .type = OS_FileSystem_Type_LITTLEFS,
+    .size = OS_FileSystem_STORAGE_MAX,
+    .storage = OS_FILESYSTEM_ASSIGN_Storage(
+        storage_rpc,
+        storage_dp),
+};
+
 
 static bool
 filesystem_init(void)
 {
-    hPartition_t phandle;
-    OS_PartitionManagerDataTypes_DiskData_t pm_disk_data;
-    OS_PartitionManagerDataTypes_PartitionData_t pm_partition_data;
+    OS_Error_t err;
 
-    if (OS_PartitionManager_getInfoDisk(&pm_disk_data) != OS_SUCCESS)
+    err = OS_FileSystem_init(&hFs, &cfgFs);
+    if (OS_SUCCESS != err)
     {
-        printf("Fail to get disk info!\n");
+        printf("OS_FileSystem_init failed with error code %d!", err);
         return false;
     }
-
-    if (OS_PartitionManager_getInfoPartition(PARTITION_ID,
-                                             &pm_partition_data) != OS_SUCCESS)
+    err = OS_FileSystem_format(hFs);
+    if (OS_SUCCESS != err)
     {
-        printf("Fail to get partition info: %d!\n", pm_partition_data.partition_id);
+        printf("OS_FileSystem_format failed with error code %d!", err);
         return false;
     }
-
-    if (OS_Filesystem_init(pm_partition_data.partition_id, 0) != OS_SUCCESS)
+    err = OS_FileSystem_mount(hFs);
+    if (OS_SUCCESS != err)
     {
-        printf("Fail to init partition: %d!\n", pm_partition_data.partition_id);
-        return false;
-    }
-
-    if ( (phandle = OS_Filesystem_open(pm_partition_data.partition_id)) < 0)
-    {
-        printf("Fail to open partition: %d!\n", pm_partition_data.partition_id);
-        return false;
-    }
-
-    if (OS_Filesystem_create(
-            phandle,
-            FS_TYPE_FAT16,
-            pm_partition_data.partition_size,
-            0,  // default value: size of sector:   512
-            0,  // default value: size of cluster:  512
-            0,  // default value: reserved sectors count: FAT12/FAT16 = 1; FAT32 = 3
-            0,  // default value: count file/dir entries: FAT12/FAT16 = 16; FAT32 = 0
-            0,  // default value: count header sectors: 512
-            FS_PARTITION_OVERWRITE_CREATE)
-        != OS_SUCCESS)
-    {
-        printf("Fail to create filesystem on partition: %d!\n",
-               pm_partition_data.partition_id);
-        return false;
-    }
-
-    if (OS_Filesystem_close(phandle) != OS_SUCCESS)
-    {
-        printf("Fail to close partition: %d!\n", pm_partition_data.partition_id);
+        printf("OS_FileSystem_mount failed with error code %d!", err);
         return false;
     }
 
@@ -130,6 +108,13 @@ filesystem_init(void)
 
 void pre_init(void)
 {
+    // create filesystem
+    if (filesystem_init() == false)
+    {
+        printf("Fail to init filesystem!\n");
+        return;
+    }
+
     // set up consumer chain
     OS_LoggerConsumerChain_getInstance();
 
@@ -142,7 +127,7 @@ void pre_init(void)
     OS_LoggerSubject_ctor(&subject_log_server);
 
     // set up log file
-    OS_LoggerFile_ctor(&log_file, PARTITION_ID, LOG_FILENAME);
+    OS_LoggerFile_ctor(&log_file, hFs, LOG_FILENAME);
 
     // set up backend
     OS_LoggerOutputFileSystem_ctor(&filesystem, &format);
@@ -205,13 +190,6 @@ void pre_init(void)
     OS_LoggerConsumerChain_append(&log_consumer_nwStack);
     // Emitter configuration
     OS_LoggerConsumerChain_append(&log_consumer_log_server);
-
-    // create filesystem
-    if (filesystem_init() == false)
-    {
-        printf("Fail to init filesystem!\n");
-        return;
-    }
 
     // create log file
     OS_LoggerFile_create(&log_file);

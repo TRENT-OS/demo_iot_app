@@ -6,8 +6,9 @@
 
 
 import <if_OS_ConfigService.camkes>;
-import <if_OS_PartitionManager.camkes>;
+import <if_OS_Storage.camkes>;
 import <if_OS_Logger.camkes>;
+
 
 component ConfigServer {
 
@@ -20,9 +21,9 @@ component ConfigServer {
     dataport Buf cfg_dataport_nwStack;
 
     //-------------------------------------------------
-    // PartitionManager
-    dataport Buf pm_dataport_buf;
-    uses     partition_manager_interface api_pm_component;
+    // StorageServer
+    uses     if_OS_Storage           storage_rpc;
+    dataport Buf                     storage_dp;
 
     //-------------------------------------------------
     // interface to log server
