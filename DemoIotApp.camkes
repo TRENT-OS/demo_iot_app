@@ -180,16 +180,16 @@ assembly {
         DECLARE_AND_CONNECT_INSTANCE_StorageServer(
             StorageServer, storageServer,
             chanMuxStorage.storage_rpc, chanMuxStorage.storage_port,
-            configServer.storage_rpc, configServer.storage_dp,
+            configServer.storage_rpc,  configServer.storage_dp,
             logServer.storage_rpc, logServer.storage_dp)
     }
     configuration {
         /* client id's */
-        configServer.log_server_interface_attributes =       10;
-        cloudConnector.log_server_interface_attributes =     20;
-        sensorTemp.log_server_interface_attributes =         30;
-        nwDriver.log_server_interface_attributes =           40;
-        nwStack.log_server_interface_attributes =            50;
+        configServer.log_server_interface_attributes =       CONFIGSERVER_LOGGER_ID;
+        cloudConnector.log_server_interface_attributes =     CLOUDCONNECTOR_LOGGER_ID;
+        sensorTemp.log_server_interface_attributes =         SENSOR_LOGGER_ID;
+        nwDriver.log_server_interface_attributes =           NWDRIVER_LOGGER_ID;
+        nwStack.log_server_interface_attributes =            NWSTACK_LOGGER_ID;
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
@@ -203,8 +203,8 @@ assembly {
 
         CONFIGURE_INSTANCE_StorageServer(
             storageServer,
-            0, 1*1024*1024,
-            1*1024*1024, 1*1024*1024)
+            CONFIGSERVER_STORAGE_OFFSET, CONFIGSERVER_STORAGE_SIZE,
+            LOGSERVER_STORAGE_OFFSET,    LOGSERVER_STORAGE_SIZE)
 
         /* timer */
         timebase.reg_paddr = 0xF8001000;    // paddr of mmio registers
@@ -217,8 +217,8 @@ assembly {
         timeServer.sem_sleep_value = 0;
         cloudConnector.sem_value = 0;
 
-        configServer.storage_rpc_attributes = 1;
-        logServer.storage_rpc_attributes = 2;
+        configServer.storage_rpc_attributes = CONFIGSERVER_STORAGE_ID;
+        logServer.storage_rpc_attributes    = LOGGER_STORAGE_ID;
     }
 }
 

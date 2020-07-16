@@ -30,6 +30,16 @@
 
 
 //-----------------------------------------------------------------------------
+// StorageServer
+//-----------------------------------------------------------------------------
+#define CONFIGSERVER_STORAGE_OFFSET 0
+#define CONFIGSERVER_STORAGE_SIZE   (1024*1024)
+
+#define LOGSERVER_STORAGE_OFFSET    (1024*1024)
+#define LOGSERVER_STORAGE_SIZE      (1024*1024)
+
+
+//-----------------------------------------------------------------------------
 // ChanMUX
 //-----------------------------------------------------------------------------
 
@@ -62,3 +72,17 @@
 #define API_LOG_SERVER_READ_LOG_FILE            log_server_interface_read_log_file
 
 #endif // !defined(CAMKES_TOOL_PROCESSING)
+
+
+//-----------------------------------------------------------------------------
+// IDS
+//-----------------------------------------------------------------------------
+
+#define CONFIGSERVER_LOGGER_ID      10
+#define CLOUDCONNECTOR_LOGGER_ID    20
+#define SENSOR_LOGGER_ID            30
+#define NWDRIVER_LOGGER_ID          40
+#define NWSTACK_LOGGER_ID           50
+
+#define CONFIGSERVER_STORAGE_ID     1
+#define LOGGER_STORAGE_ID           2

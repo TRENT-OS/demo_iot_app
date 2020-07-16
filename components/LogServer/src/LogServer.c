@@ -44,11 +44,7 @@
 #define PARTITION_ID                1
 #define LOG_FILENAME                "log.txt"
 
-
-
 uint32_t API_LOG_SERVER_GET_SENDER_ID(void);
-
-
 
 static OS_LoggerFilter_Handle_t filter_configSrv,
        filter_cloudCon, filter_sensorTemp, filter_nwDriver, filter_nwStack;
@@ -77,39 +73,49 @@ static OS_FileSystem_Config_t cfgFs =
         storage_dp),
 };
 
+// Private functions -----------------------------------------------------------
 
-static bool
-filesystem_init(void)
+static OS_Error_t
+initFileSystem(
+    void)
 {
-    OS_Error_t err;
-
-    err = OS_FileSystem_init(&hFs, &cfgFs);
+    OS_Error_t err = OS_FileSystem_init(&hFs, &cfgFs);
     if (OS_SUCCESS != err)
     {
         printf("OS_FileSystem_init failed with error code %d!", err);
-        return false;
+        return err;
     }
     err = OS_FileSystem_format(hFs);
     if (OS_SUCCESS != err)
     {
         printf("OS_FileSystem_format failed with error code %d!", err);
-        return false;
+        goto err0;
     }
     err = OS_FileSystem_mount(hFs);
     if (OS_SUCCESS != err)
     {
         printf("OS_FileSystem_mount failed with error code %d!", err);
-        return false;
+        goto err0;
     }
 
-    return true;
+    return OS_SUCCESS;
+
+err0:
+    err =  OS_FileSystem_free(hFs);
+    if (OS_SUCCESS != err)
+    {
+        printf("OS_FileSystem_free failed with error code %d!", err);
+    }
+
+    return err;
 }
 
+// Public functions ------------------------------------------------------------
 
 void pre_init(void)
 {
     // create filesystem
-    if (filesystem_init() == false)
+    if (initFileSystem() != OS_SUCCESS)
     {
         printf("Fail to init filesystem!\n");
         return;
@@ -165,11 +171,21 @@ void pre_init(void)
         api_time_server_get_timestamp);
 
     // set up log consumer layer
-    OS_LoggerConsumer_ctor(&log_consumer_configSrv,      DATABUFFER_SERVER_01, &filter_configSrv,      &log_consumer_callback, &subject, NULL, CLIENT_CONFIGSRV_ID, "CONFIG-SERVER");
-    OS_LoggerConsumer_ctor(&log_consumer_cloudCon,       DATABUFFER_SERVER_02, &filter_cloudCon,       &log_consumer_callback, &subject, NULL, CLIENT_CLOUDCON_ID, "CLOUDCONNECTOR");
-    OS_LoggerConsumer_ctor(&log_consumer_sensorTemp,     DATABUFFER_SERVER_03, &filter_sensorTemp,     &log_consumer_callback, &subject, NULL, CLIENT_SENSORTEMP_ID, "SENSOR-TEMP");
-    OS_LoggerConsumer_ctor(&log_consumer_nwDriver,       DATABUFFER_SERVER_04, &filter_nwDriver,       &log_consumer_callback, &subject, NULL, CLIENT_NWDRIVER_ID, "NWDRIVER");
-    OS_LoggerConsumer_ctor(&log_consumer_nwStack,        DATABUFFER_SERVER_05, &filter_nwStack,        &log_consumer_callback, &subject, NULL, CLIENT_NWSTACK_ID, "NWSTACK");
+    OS_LoggerConsumer_ctor(&log_consumer_configSrv,      DATABUFFER_SERVER_01,
+                           &filter_configSrv,      &log_consumer_callback, &subject, NULL,
+                           CLIENT_CONFIGSRV_ID, "CONFIG-SERVER");
+    OS_LoggerConsumer_ctor(&log_consumer_cloudCon,       DATABUFFER_SERVER_02,
+                           &filter_cloudCon,       &log_consumer_callback, &subject, NULL,
+                           CLIENT_CLOUDCON_ID, "CLOUDCONNECTOR");
+    OS_LoggerConsumer_ctor(&log_consumer_sensorTemp,     DATABUFFER_SERVER_03,
+                           &filter_sensorTemp,     &log_consumer_callback, &subject, NULL,
+                           CLIENT_SENSORTEMP_ID, "SENSOR-TEMP");
+    OS_LoggerConsumer_ctor(&log_consumer_nwDriver,       DATABUFFER_SERVER_04,
+                           &filter_nwDriver,       &log_consumer_callback, &subject, NULL,
+                           CLIENT_NWDRIVER_ID, "NWDRIVER");
+    OS_LoggerConsumer_ctor(&log_consumer_nwStack,        DATABUFFER_SERVER_05,
+                           &filter_nwStack,        &log_consumer_callback, &subject, NULL,
+                           CLIENT_NWSTACK_ID, "NWSTACK");
 
     // Emitter configuration
     OS_LoggerConsumer_ctor(&log_consumer_log_server, buf_log_server,

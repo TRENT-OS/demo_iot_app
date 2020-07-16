@@ -21,7 +21,7 @@ component ConfigServer {
     dataport Buf cfg_dataport_nwStack;
 
     //-------------------------------------------------
-    // StorageServer
+    // interface to storage
     uses     if_OS_Storage           storage_rpc;
     dataport Buf                     storage_dp;
 
