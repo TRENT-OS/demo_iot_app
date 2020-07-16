@@ -21,9 +21,11 @@ import "components/ConfigServer/ConfigServer.camkes";
 #include "UART/Uart.camkes"
 DECLARE_COMPONENT_UART(UART)
 
-#define CHANMUX_COMPONENT_NAME  ChanMux
-#define CHANMUX_UPPER_INTERFACES "components/ChanMux/ChanMux_upper_interface.camkes"
 #include "ChanMux/ChanMux.camkes"
+ChanMux_DEFINE_COMPONENT(ChanMux,
+        chanMuxStorage, chan,
+        nwDriver, data,
+        nwDriver, ctrl)
 
 #include "ChanMux_Storage/ChanMux_Storage.camkes"
 
@@ -92,9 +94,9 @@ assembly {
         //----------------------------------------------------------------------
         component  NwDriver         nwDriver;
 
-        CHANMUX_INSTANCE_CONNECT_INTERFACE(chanMux, nwDriver)
-        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, data)
-        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, ctrl)
+        ChanMux_INSTANCE_CONNECT_INTERFACE(chanMux, nwDriver)
+        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, data)
+        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, ctrl)
 
         connection seL4RPCCall      NwDriver_logServer               (from nwDriver.logServer_rpc,  to logServer.log_server_interface);
         connection seL4SharedData   NwDriver_logServer_data          (from nwDriver.logServer_port, to logServer.dataport_buf_nwDriver);
@@ -129,7 +131,7 @@ assembly {
         //----------------------------------------------------------------------
         // MUX
         //----------------------------------------------------------------------
-        DECLARE_AND_CONNECT_INSTANCE_CHANMUX_TO_UART(ChanMux, chanMux, uartDrv)
+        ChanMux_DECLARE_AND_CONNECT_INSTANCE_TO_UART(ChanMux, chanMux, uartDrv)
 
 
         //----------------------------------------------------------------------
@@ -165,8 +167,8 @@ assembly {
         //----------------------------------------------------------------------
         component   ChanMux_Storage     chanMuxStorage;
 
-        CHANMUX_INSTANCE_CONNECT_INTERFACE(chanMux, chanMuxStorage)
-        CHANMUX_INSTANCE_CONNECT_CHANNEL(chanMux, chanMuxStorage, chan)
+        ChanMux_INSTANCE_CONNECT_INTERFACE(chanMux, chanMuxStorage)
+        ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, chanMuxStorage, chan)
 
         //----------------------------------------------------------------------
         // UART
@@ -193,8 +195,8 @@ assembly {
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>
-        CHANMUX_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
-        CHANMUX_ASSIGN_CLIENT_BADGE(chanMux, chanMuxStorage, CHANMUX_ID_STORAGE)
+        ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
+        ChanMux_ASSIGN_CLIENT_BADGE(chanMux, chanMuxStorage, CHANMUX_ID_STORAGE)
 
         CONFIGURE_INSTANCE_UART(
             uartDrv,
