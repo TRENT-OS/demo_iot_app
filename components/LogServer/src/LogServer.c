@@ -66,7 +66,7 @@ static char buf_log_server[DATABUFFER_SIZE];
 static OS_FileSystem_Handle_t hFs;
 static OS_FileSystem_Config_t cfgFs =
 {
-    .type = OS_FileSystem_Type_LITTLEFS,
+    .type = OS_FileSystem_Type_FATFS,
     .size = OS_FileSystem_STORAGE_MAX,
     .storage = OS_FILESYSTEM_ASSIGN_Storage(
         storage_rpc,

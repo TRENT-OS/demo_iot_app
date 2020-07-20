@@ -19,7 +19,7 @@
 
 static OS_FileSystem_Config_t cfg =
 {
-    .type = OS_FileSystem_Type_LITTLEFS,
+    .type = OS_FileSystem_Type_FATFS,
     .size = OS_FileSystem_STORAGE_MAX,
     .storage = OS_FILESYSTEM_ASSIGN_Storage(
         storage_rpc,
