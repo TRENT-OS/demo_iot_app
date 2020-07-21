@@ -26,6 +26,11 @@ IMAGE_PATH=${PROJECT_PATH}/images/capdl-loader-image-arm-zynq7000
 
 # create provisioned partition from XML file
 echo "Creating configuration provisioned partition"
+# run the tool with the configuration file provided by the system. The created
+# image needs to be named "nvm_06", since the system makes use of the Proxy App
+# which expects the NVM file name to follow the naming convention
+# "nvm_[channelID]". The system makes use of the first NVM channel of the Proxy,
+# which maps to the channel number six of the App -> nvm_06.
 # Since the demo is using a FAT filesystem, the option is set accordingly.
 ${DIR_BIN_SDK}/cpt -i ${CURRENT_SCRIPT_DIR}/configuration/config.xml -o nvm_06 -t FAT
 sleep 1

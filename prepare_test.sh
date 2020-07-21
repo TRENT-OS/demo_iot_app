@@ -36,4 +36,9 @@ shift 1
 
 echo "Running Configuration Provisining Tool from SDK directory: ${DIR_SDK}"
 
+# run the tool with the configuration file provided by the system. The created
+# image needs to be named "nvm_06", since the system makes use of the Proxy App
+# which expects the NVM file name to follow the naming convention
+# "nvm_[channelID]". The system makes use of the first NVM channel of the Proxy,
+# which maps to the channel number six of the App -> nvm_06
 sdk_cpt ${DIR_SDK} ${TEST_SYSTEM_DIR}/configuration/config.xml nvm_06
