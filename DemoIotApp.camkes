@@ -86,8 +86,8 @@ assembly {
         DECLARE_AND_CONNECT_INSTANCE_EntropySource(
             EntropySource,
             entropySource,
-            cloudConnector.entropySource_rpc,
-            cloudConnector.entropySource_dp)
+            cloudConnector.entropy_rpc,
+            cloudConnector.entropy_port)
 
         //----------------------------------------------------------------------
         // Network Driver #1
