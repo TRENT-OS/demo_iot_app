@@ -208,6 +208,11 @@ assembly {
             CONFIGSERVER_STORAGE_OFFSET, CONFIGSERVER_STORAGE_SIZE,
             LOGSERVER_STORAGE_OFFSET,    LOGSERVER_STORAGE_SIZE)
 
+        ASSIGN_CLIENT_BADGE_StorageServer(
+            configServer, storage_rpc, CONFIGSERVER_STORAGE_ID)
+        ASSIGN_CLIENT_BADGE_StorageServer(
+            logServer, storage_rpc, LOGGER_STORAGE_ID)
+
         /* timer */
         timebase.reg_paddr = 0xF8001000;    // paddr of mmio registers
         timebase.reg_size = 0x1000;         // size of mmio registers
@@ -218,9 +223,6 @@ assembly {
         timeServer.sem_ticks_value = 0;
         timeServer.sem_sleep_value = 0;
         cloudConnector.sem_value = 0;
-
-        configServer.storage_rpc_attributes = CONFIGSERVER_STORAGE_ID;
-        logServer.storage_rpc_attributes    = LOGGER_STORAGE_ID;
     }
 }
 
