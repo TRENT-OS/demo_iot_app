@@ -6,7 +6,7 @@
 
 import <std_connector.camkes>;
 
-import <if_OS_EntropySource.camkes>;
+import <if_OS_Entropy.camkes>;
 
 import "components/Sensor/Sensor.camkes";
 import "components/CloudConnector/CloudConnector.camkes";
