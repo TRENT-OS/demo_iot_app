@@ -11,6 +11,7 @@
 
 #include "OS_Error.h"
 #include "OS_NetworkStack.h"
+#include "TimeServer.h"
 #include "OS_ConfigService.h"
 #include "OS_Dataport.h"
 #include "helper_func.h"
@@ -36,6 +37,15 @@ static OS_NetworkStack_AddressConfig_t param_config =
     .gateway_addr  =   GATEWAY_ADDR,
     .subnet_mask   =   SUBNET_MASK
 };
+
+//------------------------------------------------------------------------------
+// network stack's PicTCP OS adaption layer calls this.
+uint64_t
+Timer_getTimeMs(void)
+{
+    return TimeServer_getTime(TimeServer_PRECISION_MSEC);
+}
+
 
 //------------------------------------------------------------------------------
 int run()

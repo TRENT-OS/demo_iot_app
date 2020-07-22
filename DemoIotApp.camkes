@@ -11,9 +11,9 @@ import <if_OS_Timer.camkes>;
 
 import "components/Sensor/Sensor.camkes";
 import "components/CloudConnector/CloudConnector.camkes";
-import "components/TimerClient/TimerClient.camkes";
 import "components/LogServer/LogServer.camkes";
 import "components/NwStack/network_stack.camkes";
+import "components/Ticker/Ticker.camkes";
 import "components/ConfigServer/ConfigServer.camkes";
 
 #include "system_config.h"
@@ -109,10 +109,6 @@ assembly {
         connection seL4Notification       NwStackEventsRxd2                (from nwStack.e_read,         to nwStack.c_read);
         connection seL4Notification       NwStackEventsRxd3                (from nwStack.e_conn,         to nwStack.c_conn);
 
-        connection seL4RPCCall            nwStack_timerClient              (from nwStack.Timer,          to timerClient.TimerClient);
-
-        connection seL4NotificationNative NwStackdataAvail3                (from timerClient.e_timeout_nwstacktick, to nwStack.event_tick_or_data);
-
         connection seL4NotificationNative NwStackdataAvail1                (from nwDriver.nic_event_hasData,     to nwStack.event_tick_or_data);
         connection seL4RPCCall            nwStack_NwDriver                 (from nwStack.nic_driver,             to nwDriver.nic_rpc);
         connection seL4SharedData         NwDriver_NwStack_ReadConnection  (from nwDriver.nic_port_to,           to nwStack.port_nic_from);
@@ -132,9 +128,10 @@ assembly {
 
 
         //----------------------------------------------------------------------
-        // TimerClient
+        // Ticker
         //----------------------------------------------------------------------
-        component  TimerClient timerClient;
+        component Ticker ticker;
+        connection seL4NotificationNative nwStack_tick (from ticker.e_timeout_nwstacktick, to nwStack.event_tick_or_data);
 
 
         //----------------------------------------------------------------------
@@ -143,7 +140,8 @@ assembly {
         DECLARE_AND_CONNECT_INSTANCE_TimeServer(
             TimeServer,
             timeServer,
-            timerClient.timeServer_rpc,
+            ticker.timeServer_rpc,
+            nwStack.timeServer_rpc,
             cloudConnector.timeServer_rpc,
             logServer.timeServer_rpc,
             sensorTemp.timeServer_rpc)

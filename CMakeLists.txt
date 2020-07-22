@@ -128,6 +128,7 @@ DeclareCAmkESComponent(
         os_network_lib
         os_logger
         os_configuration
+        TimeServer_client
 )
 
 DeclareCAmkESComponent_NIC_ChanMux(
@@ -155,14 +156,13 @@ DeclareCAmkESComponent_UART(
 )
 
 DeclareCAmkESComponent(
-    TimerClient
+    Ticker
     SOURCES
-        components/TimerClient/src/Timer_Client.c
+        components/Ticker/Ticker.c
     C_FLAGS
         -Wall
         -Werror
     LIBS
-        system_config
         os_core_api
         os_libs
         TimeServer_client

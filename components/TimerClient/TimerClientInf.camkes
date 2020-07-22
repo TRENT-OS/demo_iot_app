@@ -1,9 +1,0 @@
-/*
-   *  CAmkES configuration file of the TimerClient component interface.
-   *
-   *  Copyright (C) 2020, Hensoldt Cyber GmbH
-*/
-
-procedure timer_client_inf {
-    unsigned getTimeMs(void);
-};
