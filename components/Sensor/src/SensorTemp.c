@@ -25,8 +25,8 @@
 #define MQTT_PAYLOAD_NAME       "MQTT_Payload" // _NAME defines are stored together with the values in the config file
 #define MQTT_TOPIC_NAME         "MQTT_Topic"
 
-#define SECS_TO_SLEEP   5
-#define S_IN_MSEC       1000
+// send a new message to the cloudConnector every five seconds
+#define SEC_TO_SLEEP   5
 
 OS_ConfigServiceHandle_t serverLibWithFSBackend;
 
@@ -48,6 +48,15 @@ initializeSensor(void)
     {
         Debug_LOG_ERROR("OS_ConfigService_createHandleRemote() failed with :%d", err);
         return err;
+    }
+
+    // set up a tick with the local timer ID 1. The local timer ID 0 is used for
+    // the sleep() function of the TimeServer
+    int ret = timeServer_rpc_periodic(1, (NS_IN_S*SEC_TO_SLEEP));
+    if (0 != ret)
+    {
+        Debug_LOG_ERROR("timeServer_rpc_periodic() failed, code %d", ret);
+        return -1;
     }
 
     return OS_SUCCESS;
@@ -114,12 +123,14 @@ int run()
                                     (unsigned char*)payload,
                                     strlen((const char*)payload));
 
+    seL4_CPtr timeServer_notification = timeServer_rpc_notification();
 
     for (;;)
     {
         CloudConnector_write(serializedMsg, (void*)cloudConnectorDataPort,
                              len);
-        TimeServer_sleep(TimeServer_PRECISION_SEC, SECS_TO_SLEEP);
+
+        seL4_Wait(timeServer_notification, NULL);
     }
 
     return 0;
