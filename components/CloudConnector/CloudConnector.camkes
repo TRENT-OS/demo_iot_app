@@ -6,10 +6,11 @@
 
 
 import "CloudConnectorInf.camkes";
+
 import <if_OS_Socket.camkes>;
 import <if_OS_ConfigService.camkes>;
 import <if_OS_Entropy.camkes>;
-import "../TimeServer/TimeServerInf.camkes";
+import <if_OS_Timer.camkes>;
 import <if_OS_Logger.camkes>;
 
 
@@ -20,7 +21,7 @@ component CloudConnector {
 
     provides    CloudConnector_inf          cloudConnector_interface;
 
-    uses        time_server_inf             api_time_server;
+    uses        if_OS_Timer                 timeServer_rpc;
 
     //-------------------------------------------------
     // Networking

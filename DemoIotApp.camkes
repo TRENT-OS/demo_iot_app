@@ -7,11 +7,11 @@
 import <std_connector.camkes>;
 
 import <if_OS_Entropy.camkes>;
+import <if_OS_Timer.camkes>;
 
 import "components/Sensor/Sensor.camkes";
 import "components/CloudConnector/CloudConnector.camkes";
 import "components/TimerClient/TimerClient.camkes";
-import "components/TimeServer/TimeServer.camkes";
 import "components/LogServer/LogServer.camkes";
 import "components/NwStack/network_stack.camkes";
 import "components/ConfigServer/ConfigServer.camkes";
@@ -35,6 +35,9 @@ DECLARE_COMPONENT_NIC_ChanMux(NwDriver)
 #include "EntropySource/camkes/EntropySource.camkes"
 DECLARE_COMPONENT_EntropySource(EntropySource)
 
+#include "TimeServer/camkes/TimeServer.camkes"
+DECLARE_COMPONENT_TimeServer(TimeServer)
+
 #include "StorageServer/camkes/StorageServer.camkes"
 DECLARE_COMPONENT_StorageServer(StorageServer)
 
@@ -46,8 +49,6 @@ assembly {
         //----------------------------------------------------------------------
         component  LogServer        logServer;
 
-        connection seL4RPCCall      logServer_timeServer                (from logServer.api_time_server, to timeServer.api_time_server);
-
 
         //----------------------------------------------------------------------
         // SensorTemp
@@ -56,8 +57,6 @@ assembly {
 
         connection seL4SharedData   cloudConnectorData_sensorTempData   (from sensorTemp.cloudConnectorDataPort,   to cloudConnector.sensorDataPort);
         connection seL4RPCCall      cloudConnector_sensorTemp           (from sensorTemp.cloudConnector_interface, to cloudConnector.cloudConnector_interface);
-
-        connection seL4RPCCall      sensorTemp_timeServer               (from sensorTemp.api_time_server, to timeServer.api_time_server);
 
         connection seL4RPCCall      sensorTemp_configServer             (from sensorTemp.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
         connection seL4SharedData   sensorTemp_configServer_data        (from sensorTemp.cfg_dataport_buf,       to configServer.cfg_dataport_sensorTemp);
@@ -70,8 +69,6 @@ assembly {
         // CloudConnector
         //----------------------------------------------------------------------
         component  CloudConnector       cloudConnector;
-
-        connection seL4RPCCall          cloudConnector_timeServer        (from cloudConnector.api_time_server, to timeServer.api_time_server);
 
         connection seL4Notification     NwAppInitDone                    (from nwStack.event_network_init_done,   to cloudConnector.event_network_stack_init_done);
         connection seL4RPCCall          cloudConnector_nwStack           (from cloudConnector.network_stack_rpc,    to nwStack.network_stack_rpc);
@@ -139,18 +136,17 @@ assembly {
         //----------------------------------------------------------------------
         component  TimerClient timerClient;
 
-        connection seL4RPCCall timerClient_timeServer        (from timerClient.api_time_server, to timeServer.api_time_server);
-
 
         //----------------------------------------------------------------------
         // TimeServer
         //----------------------------------------------------------------------
-        component  Timebase      timebase;
-        component  TimeServer    timeServer;
-
-        connection seL4HardwareMMIO      timeServer_mem       (from timeServer.reg,     to timebase.reg);
-        connection seL4HardwareInterrupt timeServer_irq_ticks (from timebase.irq_ticks, to timeServer.irq_ticks);
-        connection seL4HardwareInterrupt timeServer_irq_sleep (from timebase.irq_sleep, to timeServer.irq_sleep);
+        DECLARE_AND_CONNECT_INSTANCE_TimeServer(
+            TimeServer,
+            timeServer,
+            timerClient.timeServer_rpc,
+            cloudConnector.timeServer_rpc,
+            logServer.timeServer_rpc,
+            sensorTemp.timeServer_rpc)
 
 
         //----------------------------------------------------------------------
@@ -213,15 +209,7 @@ assembly {
         ASSIGN_CLIENT_BADGE_StorageServer(
             logServer, storage_rpc, LOGGER_STORAGE_ID)
 
-        /* timer */
-        timebase.reg_paddr = 0xF8001000;    // paddr of mmio registers
-        timebase.reg_size = 0x1000;         // size of mmio registers
-        timebase.irq_ticks_irq_number = 42; // timeServer irq number
-        timebase.irq_sleep_irq_number = 43; // timeServer irq number
-
         /* assign an initial value to semaphore */
-        timeServer.sem_ticks_value = 0;
-        timeServer.sem_sleep_value = 0;
         cloudConnector.sem_value = 0;
     }
 }

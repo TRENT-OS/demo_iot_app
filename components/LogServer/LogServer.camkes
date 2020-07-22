@@ -7,7 +7,7 @@
 
 import <if_OS_Storage.camkes>;
 import <if_OS_Logger.camkes>;
-import "../TimeServer/TimeServerInf.camkes";
+import <if_OS_Timer.camkes>;
 
 
 component LogServer {
@@ -20,7 +20,7 @@ component LogServer {
     dataport Buf                     dataport_buf_nwDriver;
     dataport Buf                     dataport_buf_nwStack;
 
-    uses     time_server_inf         api_time_server;
+    uses     if_OS_Timer             timeServer_rpc;
 
     uses     if_OS_Storage           storage_rpc;
     dataport Buf                     storage_dp;

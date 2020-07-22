@@ -6,6 +6,8 @@
  */
 
 #include "LibDebug/Debug.h"
+#include "TimeServer.h"
+
 #include <camkes.h>
 
 // Triggers the NetworkStack to check for possible events.
@@ -27,7 +29,7 @@ int run(void)
 
     for (;;)
     {
-        api_time_server_sleep(MSECS_TO_SLEEP);
+        TimeServer_sleep(TimeServer_PRECISION_MSEC, MSECS_TO_SLEEP);
         counterMs += MSECS_TO_SLEEP;
         if ((counterMs % SIGNAL_PERIOD_MS) == 0)
         {

@@ -5,6 +5,7 @@
  */
 
 #include "LibDebug/Debug.h"
+#include "TimeServer.h"
 
 #include <string.h>
 #include <camkes.h>
@@ -89,7 +90,7 @@ static CC_FSM_t cc_fsm;
 
 uint64_t get_mqtt_timestamp_ms()
 {
-    return api_time_server_get_timestamp();
+    return TimeServer_getTime(TimeServer_PRECISION_MSEC);
 }
 
 OS_Error_t init_config_handle(OS_ConfigServiceHandle_t* configHandle);

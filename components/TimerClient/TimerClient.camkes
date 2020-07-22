@@ -4,13 +4,14 @@
    *  Copyright (C) 2020, Hensoldt Cyber GmbH
 */
 
+import <if_OS_Timer.camkes>;
 import "TimerClientInf.camkes";
-import "../TimeServer/TimeServerInf.camkes";
+
 
 component TimerClient {
     control;
 
-    uses     time_server_inf    api_time_server;
+    uses     if_OS_Timer        timeServer_rpc;
     provides timer_client_inf   TimerClient;
 
     emits  EventDataAvailable   e_timeout_nwstacktick;

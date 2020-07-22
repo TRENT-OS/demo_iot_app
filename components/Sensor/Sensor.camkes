@@ -5,9 +5,10 @@
 */
 
 import <if_OS_ConfigService.camkes>;
-import "../CloudConnector/CloudConnectorInf.camkes";
-import "../TimeServer/TimeServerInf.camkes";
 import <if_OS_Logger.camkes>;
+import <if_OS_Timer.camkes>;
+
+import "../CloudConnector/CloudConnectorInf.camkes";
 
 component SensorTemp {
     control;
@@ -15,7 +16,7 @@ component SensorTemp {
     dataport    Buf                 cloudConnectorDataPort;
 
     uses        CloudConnector_inf  cloudConnector_interface;
-    uses        time_server_inf     api_time_server;
+    uses        if_OS_Timer         timeServer_rpc;
 
     //---------------------------------------------------
     // Configuration server

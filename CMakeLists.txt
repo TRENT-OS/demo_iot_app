@@ -38,6 +38,7 @@ DeclareCAmkESComponent(
         os_configuration
         os_logger
         os_mqtt
+        TimeServer_client
 )
 
 DeclareCAmkESComponent(
@@ -73,6 +74,7 @@ DeclareCAmkESComponent(
         os_libs
         os_log_server_backend_filesystem
         os_filesystem
+        TimeServer_client
 )
 
 DeclareCAmkESComponent(
@@ -101,6 +103,7 @@ DeclareCAmkESComponent(
         os_configuration
         os_logger
         os_network_api
+        TimeServer_client
 )
 
 DeclareCAmkESComponent(
@@ -162,20 +165,11 @@ DeclareCAmkESComponent(
         system_config
         os_core_api
         os_libs
+        TimeServer_client
 )
 
-DeclareCAmkESComponent(
+DeclareCAmkESComponent_TimeServer(
     TimeServer
-    INCLUDES
-        components/TimeServer/include
-        components/TimeServer/timestamp
-    SOURCES
-        components/TimeServer/src/main.c
-        components/TimeServer/src/time_server.c
-        components/TimeServer/timestamp/timestamp.c
-    C_FLAGS
-        -Wall
-        -Werror
 )
 
 DeclareCAmkESComponent_EntropySource(
