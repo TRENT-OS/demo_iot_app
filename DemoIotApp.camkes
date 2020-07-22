@@ -55,14 +55,14 @@ assembly {
         //----------------------------------------------------------------------
         component  SensorTemp       sensorTemp;
 
-        connection seL4SharedData   cloudConnectorData_sensorTempData   (from sensorTemp.cloudConnectorDataPort,   to cloudConnector.sensorDataPort);
-        connection seL4RPCCall      cloudConnector_sensorTemp           (from sensorTemp.cloudConnector_interface, to cloudConnector.cloudConnector_interface);
+        connection seL4SharedData   cloudConnectorData_sensorTempData   (from sensorTemp.cloudConnectorDataPort,   to cloudConnector.sensor_dp);
+        connection seL4RPCCall      cloudConnector_sensorTemp           (from sensorTemp.cloudConnector_rpc,        to cloudConnector.cloudConnector_rpc);
 
         connection seL4RPCCall      sensorTemp_configServer             (from sensorTemp.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData   sensorTemp_configServer_data        (from sensorTemp.cfg_dataport_buf,       to configServer.cfg_dataport_sensorTemp);
+        connection seL4SharedData   sensorTemp_configServer_data        (from sensorTemp.configServer_dp,       to configServer.sensorTemp_dp);
 
-        connection seL4RPCCall      sensorTemp_logServer                (from sensorTemp.log_server_interface,   to logServer.log_server_interface);
-        connection seL4SharedData   sensorTemp_logServer_data           (from sensorTemp.logServer_dataport_buf, to logServer.dataport_buf_sensorTemp);
+        connection seL4RPCCall      sensorTemp_logServer                (from sensorTemp.logServer_rpc,   to logServer.logServer_rpc);
+        connection seL4SharedData   sensorTemp_logServer_data           (from sensorTemp.logServer_dp, to logServer.sensorTemp_dp);
 
 
         //----------------------------------------------------------------------
@@ -72,13 +72,13 @@ assembly {
 
         connection seL4Notification     NwAppInitDone                    (from nwStack.event_network_init_done,   to cloudConnector.event_network_stack_init_done);
         connection seL4RPCCall          cloudConnector_nwStack           (from cloudConnector.network_stack_rpc,    to nwStack.network_stack_rpc);
-        connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.NwAppDataPort,        to nwStack.port_app_io);
+        connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.nwStack_dp,        to nwStack.port_app_io);
 
         connection seL4RPCCall          cloudConnector_configServer      (from cloudConnector.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData       cloudConnector_configServer_data (from cloudConnector.cfg_dataport_buf,       to configServer.cfg_dataport_cloudConnector);
+        connection seL4SharedData       cloudConnector_configServer_data (from cloudConnector.configServer_dp,       to configServer.cloudConnector_dp);
 
-        connection seL4RPCCall          cloudConnector_logServer         (from cloudConnector.log_server_interface,   to logServer.log_server_interface);
-        connection seL4SharedData       cloudConnector_logServer_data    (from cloudConnector.logServer_dataport_buf, to logServer.dataport_buf_cloudConnector);
+        connection seL4RPCCall          cloudConnector_logServer         (from cloudConnector.logServer_rpc,   to logServer.logServer_rpc);
+        connection seL4SharedData       cloudConnector_logServer_data    (from cloudConnector.logServer_dp, to logServer.cloudConnector_dp);
 
         DECLARE_AND_CONNECT_INSTANCE_EntropySource(
             EntropySource,
@@ -95,8 +95,8 @@ assembly {
         ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, data)
         ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, nwDriver, ctrl)
 
-        connection seL4RPCCall      NwDriver_logServer               (from nwDriver.logServer_rpc,  to logServer.log_server_interface);
-        connection seL4SharedData   NwDriver_logServer_data          (from nwDriver.logServer_port, to logServer.dataport_buf_nwDriver);
+        connection seL4RPCCall      NwDriver_logServer               (from nwDriver.logServer_rpc,  to logServer.logServer_rpc);
+        connection seL4SharedData   NwDriver_logServer_data          (from nwDriver.logServer_port, to logServer.nwDriver_dp);
 
 
         //----------------------------------------------------------------------
@@ -115,10 +115,10 @@ assembly {
         connection seL4SharedData         NwDriver_NwStack_WriteConnection (from nwDriver.nic_port_from,         to nwStack.port_nic_to);
 
         connection seL4RPCCall            NwStack_configuration_server     (from nwStack.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData         NwStack_config_data              (from nwStack.cfg_dataport_buf,       to configServer.cfg_dataport_nwStack);
+        connection seL4SharedData         NwStack_config_data              (from nwStack.configServer_dp,       to configServer.nwStack_dp);
 
-        connection seL4RPCCall            NwStack_logServer                (from nwStack.log_server_interface,   to logServer.log_server_interface);
-        connection seL4SharedData         NwStack_logServer_data           (from nwStack.logServer_dataport_buf, to logServer.dataport_buf_nwStack);
+        connection seL4RPCCall            NwStack_logServer                (from nwStack.logServer_rpc,   to logServer.logServer_rpc);
+        connection seL4SharedData         NwStack_logServer_data           (from nwStack.logServer_dp, to logServer.nwStack_dp);
 
 
         //----------------------------------------------------------------------
@@ -152,8 +152,8 @@ assembly {
         //----------------------------------------------------------------------
         component   ConfigServer     configServer;
 
-        connection  seL4RPCCall      configServer_logServer            (from configServer.log_server_interface,   to logServer.log_server_interface);
-        connection  seL4SharedData   configServer_logServer_data       (from configServer.logServer_dataport_buf, to logServer.dataport_buf_configServer);
+        connection  seL4RPCCall      configServer_logServer            (from configServer.logServer_rpc,   to logServer.logServer_rpc);
+        connection  seL4SharedData   configServer_logServer_data       (from configServer.logServer_dp, to logServer.configServer_dp);
 
 
         //----------------------------------------------------------------------
@@ -181,11 +181,11 @@ assembly {
     }
     configuration {
         /* client id's */
-        configServer.log_server_interface_attributes =       CONFIGSERVER_LOGGER_ID;
-        cloudConnector.log_server_interface_attributes =     CLOUDCONNECTOR_LOGGER_ID;
-        sensorTemp.log_server_interface_attributes =         SENSOR_LOGGER_ID;
-        nwDriver.log_server_interface_attributes =           NWDRIVER_LOGGER_ID;
-        nwStack.log_server_interface_attributes =            NWSTACK_LOGGER_ID;
+        configServer.logServer_rpc_attributes =       CONFIGSERVER_LOGGER_ID;
+        cloudConnector.logServer_rpc_attributes =     CLOUDCONNECTOR_LOGGER_ID;
+        sensorTemp.logServer_rpc_attributes =         SENSOR_LOGGER_ID;
+        nwDriver.logServer_rpc_attributes =           NWDRIVER_LOGGER_ID;
+        nwStack.logServer_rpc_attributes =            NWSTACK_LOGGER_ID;
 
         // assign endpoint badges for n:1 RPC interface of ChanMUX. The generic
         // naming scheme is <component>.<interface>_attributes = <badge ID>

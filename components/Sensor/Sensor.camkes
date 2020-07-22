@@ -15,16 +15,16 @@ component SensorTemp {
 
     dataport    Buf                 cloudConnectorDataPort;
 
-    uses        if_CloudConnector   cloudConnector_interface;
+    uses        if_CloudConnector   cloudConnector_rpc;
     uses        if_OS_Timer         timeServer_rpc;
 
     //---------------------------------------------------
     // Configuration server
     uses     if_OS_ConfigService OS_ConfigServiceServer;
-    dataport Buf                 cfg_dataport_buf;
+    dataport Buf                 configServer_dp;
 
     //-------------------------------------------------
     // interface to log server
-    dataport Buf                logServer_dataport_buf;
-    uses     if_OS_Logger       log_server_interface;
+    dataport Buf                logServer_dp;
+    uses     if_OS_Logger       logServer_rpc;
 }

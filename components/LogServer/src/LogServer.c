@@ -26,11 +26,11 @@
 
 
 /* Defines -------------------------------------------------------------------*/
-#define DATABUFFER_SERVER_01    (void *)dataport_buf_configServer
-#define DATABUFFER_SERVER_02    (void *)dataport_buf_cloudConnector
-#define DATABUFFER_SERVER_03    (void *)dataport_buf_sensorTemp
-#define DATABUFFER_SERVER_04    (void *)dataport_buf_nwDriver
-#define DATABUFFER_SERVER_05    (void *)dataport_buf_nwStack
+#define DATABUFFER_SERVER_01    (void *)configServer_dp
+#define DATABUFFER_SERVER_02    (void *)cloudConnector_dp
+#define DATABUFFER_SERVER_03    (void *)sensorTemp_dp
+#define DATABUFFER_SERVER_04    (void *)nwDriver_dp
+#define DATABUFFER_SERVER_05    (void *)nwStack_dp
 
 // log server id
 #define LOG_SERVER_ID               0

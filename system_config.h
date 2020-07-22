@@ -66,9 +66,9 @@
 #include "Logger/Client/OS_Logger.h"
 
 // api interface name
-#define API_LOG_SERVER_EMIT                     log_server_interface_emit
-#define API_LOG_SERVER_GET_SENDER_ID            log_server_interface_get_sender_id
-#define API_LOG_SERVER_READ_LOG_FILE            log_server_interface_read_log_file
+#define API_LOG_SERVER_EMIT                     logServer_rpc_emit
+#define API_LOG_SERVER_GET_SENDER_ID            logServer_rpc_get_sender_id
+#define API_LOG_SERVER_READ_LOG_FILE            logServer_rpc_read_log_file
 
 #endif // !defined(CAMKES_TOOL_PROCESSING)
 

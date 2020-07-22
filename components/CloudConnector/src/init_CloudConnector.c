@@ -18,7 +18,7 @@ init_config_handle(OS_ConfigServiceHandle_t* configHandle)
 {
     static OS_ConfigService_ClientCtx_t ctx =
     {
-        .dataport = OS_DATAPORT_ASSIGN(cfg_dataport_buf)
+        .dataport = OS_DATAPORT_ASSIGN(configServer_dp)
     };
     OS_Error_t err = OS_ConfigService_createHandleRemote(
                          &ctx,

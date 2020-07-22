@@ -12,13 +12,13 @@ import <if_OS_Timer.camkes>;
 
 component LogServer {
 
-    provides if_OS_Logger            log_server_interface;
+    provides if_OS_Logger            logServer_rpc;
 
-    dataport Buf                     dataport_buf_configServer;
-    dataport Buf                     dataport_buf_cloudConnector;
-    dataport Buf                     dataport_buf_sensorTemp;
-    dataport Buf                     dataport_buf_nwDriver;
-    dataport Buf                     dataport_buf_nwStack;
+    dataport Buf                     configServer_dp;
+    dataport Buf                     cloudConnector_dp;
+    dataport Buf                     sensorTemp_dp;
+    dataport Buf                     nwDriver_dp;
+    dataport Buf                     nwStack_dp;
 
     uses     if_OS_Timer             timeServer_rpc;
 
