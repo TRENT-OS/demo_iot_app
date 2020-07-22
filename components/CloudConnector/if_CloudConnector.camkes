@@ -4,7 +4,7 @@
    *  Copyright (C) 2020, Hensoldt Cyber GmbH
 */
 
-procedure CloudConnector_inf {
+procedure if_CloudConnector {
     include "OS_Error.h";
 
     OS_Error_t      write    ();

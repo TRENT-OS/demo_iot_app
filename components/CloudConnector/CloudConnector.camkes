@@ -5,7 +5,7 @@
 */
 
 
-import "CloudConnectorInf.camkes";
+import "if_CloudConnector.camkes";
 
 import <if_OS_Socket.camkes>;
 import <if_OS_ConfigService.camkes>;
@@ -19,7 +19,7 @@ component CloudConnector {
 
     dataport    Buf                         sensorDataPort;
 
-    provides    CloudConnector_inf          cloudConnector_interface;
+    provides    if_CloudConnector           cloudConnector_interface;
 
     uses        if_OS_Timer                 timeServer_rpc;
 

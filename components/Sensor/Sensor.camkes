@@ -8,14 +8,14 @@ import <if_OS_ConfigService.camkes>;
 import <if_OS_Logger.camkes>;
 import <if_OS_Timer.camkes>;
 
-import "../CloudConnector/CloudConnectorInf.camkes";
+import "../CloudConnector/if_CloudConnector.camkes";
 
 component SensorTemp {
     control;
 
     dataport    Buf                 cloudConnectorDataPort;
 
-    uses        CloudConnector_inf  cloudConnector_interface;
+    uses        if_CloudConnector   cloudConnector_interface;
     uses        if_OS_Timer         timeServer_rpc;
 
     //---------------------------------------------------
