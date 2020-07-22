@@ -26,7 +26,8 @@ IMAGE_PATH=${PROJECT_PATH}/images/capdl-loader-image-arm-zynq7000
 
 # create provisioned partition from XML file
 echo "Creating configuration provisioned partition"
-${DIR_BIN_SDK}/cpt -i ${CURRENT_SCRIPT_DIR}/configuration/config.xml -o nvm_06
+# Since the demo is using a FAT filesystem, the option is set accordingly.
+${DIR_BIN_SDK}/cpt -i ${CURRENT_SCRIPT_DIR}/configuration/config.xml -o nvm_06 -t FAT
 sleep 1
 
 QEMU_PARAMS=(

@@ -22,8 +22,9 @@ function sdk_cpt()
     local IMG_OUT=$3
 
     # Run the tool with the provided path to the XML file holding the
-    # configuration and create an image with the output filename provided
-    ${DIR_SDK}/bin/cpt -i ${CFG_XML} -o ${IMG_OUT}
+    # configuration and create an image with the output filename provided.
+    # Since the demo is using a FAT filesystem, the option is set accordingly.
+    ${DIR_SDK}/bin/cpt -i ${CFG_XML} -o ${IMG_OUT} -t FAT
 }
 
 
