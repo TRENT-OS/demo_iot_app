@@ -6,7 +6,6 @@
  */
 #pragma once
 
-
 //-----------------------------------------------------------------------------
 // Debug
 //-----------------------------------------------------------------------------
@@ -86,3 +85,8 @@
 
 #define CONFIGSERVER_STORAGE_ID     1
 #define LOGGER_STORAGE_ID           2
+
+#define NIC_DRIVER_RINGBUFFER_NUMBER_ELEMENTS 16
+#define NIC_DRIVER_RINGBUFFER_SIZE                                             \
+    (NIC_DRIVER_RINGBUFFER_NUMBER_ELEMENTS * 4096)
+
