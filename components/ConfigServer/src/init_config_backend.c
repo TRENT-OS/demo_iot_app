@@ -135,10 +135,8 @@ init_system_config_backend(void)
         return err;
     }
 
-    OS_ConfigServiceInstanceStore_t* serverInstanceStore =
-        OS_ConfigService_getInstances();
     OS_ConfigServiceLib_t* configLib =
-        OS_ConfigServiceInstanceStore_getInstance(serverInstanceStore, 0);
+        OS_ConfigService_getInstance();
 
     err = initializeFileBackends(configLib, hFs);
     if (err != OS_SUCCESS)

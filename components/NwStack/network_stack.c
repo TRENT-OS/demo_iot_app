@@ -118,7 +118,6 @@ int run()
         .dataport = OS_DATAPORT_ASSIGN(cfg_dataport_buf)
     };
     ret = OS_ConfigService_createHandleRemote(
-            0,
             &ctx,
             &serverLibWithFSBackend);
     if (ret != OS_SUCCESS)

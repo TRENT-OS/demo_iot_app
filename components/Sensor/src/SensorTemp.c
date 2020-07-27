@@ -41,7 +41,6 @@ initializeSensor(void)
         .dataport = OS_DATAPORT_ASSIGN(cfg_dataport_buf)
     };
     OS_Error_t err = OS_ConfigService_createHandleRemote(
-                         0,
                          &ctx,
                          &serverLibWithFSBackend);
     if (err != OS_SUCCESS)
