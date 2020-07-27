@@ -36,7 +36,7 @@ static OS_Tls_Config_t tlsCfg =
             .recv   = recvFunc,
             .send   = sendFunc,
         },
-        .flags = OS_Tls_FLAG_DEBUG,
+        .flags = OS_Tls_FLAG_NONE,
         .crypto = {
             .policy = NULL,
             .cipherSuites = {
