@@ -28,7 +28,7 @@
 // send a new message to the cloudConnector every five seconds
 #define SEC_TO_SLEEP   5
 
-OS_ConfigServiceHandle_t serverLibWithFSBackend;
+OS_ConfigServiceHandle_t hConfig;
 
 static unsigned char payload[128]; // arbitrary max expected length
 static char topic[128];
@@ -42,7 +42,7 @@ initializeSensor(void)
     };
     OS_Error_t err = OS_ConfigService_createHandleRemote(
                          &ctx,
-                         &serverLibWithFSBackend);
+                         &hConfig);
     if (err != OS_SUCCESS)
     {
         Debug_LOG_ERROR("OS_ConfigService_createHandleRemote() failed with :%d", err);
@@ -81,7 +81,7 @@ int run()
 
     Debug_LOG_INFO("Starting TemperatureSensor...");
 
-    ret = helper_func_getConfigParameter(&serverLibWithFSBackend,
+    ret = helper_func_getConfigParameter(&hConfig,
                                          DOMAIN_SENSOR,
                                          MQTT_PAYLOAD_NAME,
                                          &payload,
@@ -95,7 +95,7 @@ int run()
     Debug_LOG_INFO("Retrieved MQTT Payload: %s", payload);
 
 
-    ret = helper_func_getConfigParameter(&serverLibWithFSBackend,
+    ret = helper_func_getConfigParameter(&hConfig,
                                          DOMAIN_SENSOR,
                                          MQTT_TOPIC_NAME,
                                          &topic,

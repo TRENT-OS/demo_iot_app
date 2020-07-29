@@ -114,7 +114,7 @@ int run()
     OS_Error_t ret;
 
     // Create a handle to the remote library instance.
-    OS_ConfigServiceHandle_t serverLibWithFSBackend;
+    OS_ConfigServiceHandle_t hConfig;
 
     static OS_ConfigService_ClientCtx_t ctx =
     {
@@ -122,7 +122,7 @@ int run()
     };
     ret = OS_ConfigService_createHandleRemote(
             &ctx,
-            &serverLibWithFSBackend);
+            &hConfig);
     if (ret != OS_SUCCESS)
     {
         Debug_LOG_ERROR("OS_ConfigService_createHandleRemote() failed with :%d", ret);
@@ -130,7 +130,7 @@ int run()
     }
 
     // Get the needed param values one by one from config server, using below API
-    ret = helper_func_getConfigParameter(&serverLibWithFSBackend,
+    ret = helper_func_getConfigParameter(&hConfig,
                                          DOMAIN_NWSTACK,
                                          CFG_ETH_ADDR,
                                          DEV_ADDR,
@@ -143,7 +143,7 @@ int run()
     }
     Debug_LOG_INFO("Retrieved TAP 0 IP Addr: %s", DEV_ADDR);
 
-    ret = helper_func_getConfigParameter(&serverLibWithFSBackend,
+    ret = helper_func_getConfigParameter(&hConfig,
                                          DOMAIN_NWSTACK,
                                          CFG_ETH_GATEWAY_ADDR,
                                          GATEWAY_ADDR,
@@ -156,7 +156,7 @@ int run()
     }
     Debug_LOG_INFO("Retrieved TAP 0 GATEWAY ADDR: %s", GATEWAY_ADDR);
 
-    ret = helper_func_getConfigParameter(&serverLibWithFSBackend,
+    ret = helper_func_getConfigParameter(&hConfig,
                                          DOMAIN_NWSTACK,
                                          CFG_ETH_SUBNET_MASK,
                                          SUBNET_MASK,
