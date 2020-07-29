@@ -11,8 +11,6 @@ import <if_OS_ConfigService.camkes>;
 import <if_OS_Timer.camkes>;
 import <if_OS_Logger.camkes>;
 
-#include "system_config.h"
-
 component NwStack {
 
     control;
@@ -44,7 +42,7 @@ component NwStack {
     //-------------------------------------------------
     // interface Ethernet NIC driver
     uses        if_OS_Nic                       nic_driver;
-    dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) port_nic_from; // NIC -> stack
+    dataport    Buf(16*4096) port_nic_from; // NIC -> stack
     dataport    Buf                             port_nic_to;   // stack -> NIC
 
     //-------------------------------------------------
