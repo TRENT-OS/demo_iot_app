@@ -442,6 +442,7 @@ static int handle_CC_FSM_INIT(CC_FSM_t* self)
         Debug_LOG_ERROR("do_tls_handshake() failed with code %d", ret);
         return ret;
     }
+    Debug_LOG_INFO("TLS session established successfully");
 
     Debug_LOG_INFO("Establishing MQTT connection... ");
     ret = do_mqtt_connect(&self->paho.client, &options);
