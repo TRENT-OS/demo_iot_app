@@ -51,7 +51,7 @@ static OS_Tls_Config_t tlsCfg =
 static OS_Crypto_Config_t cryptoCfg =
 {
     .mode = OS_Crypto_MODE_LIBRARY_ONLY,
-    .library.entropy = OS_CRYPTO_ASSIGN_Entropy(
+    .entropy = IF_OS_ENTROPY_ASSIGN(
         entropy_rpc,
         entropy_port),
 };
