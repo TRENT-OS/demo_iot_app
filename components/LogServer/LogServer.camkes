@@ -21,6 +21,7 @@ component LogServer {
     dataport Buf                     nwStack_dp;
 
     uses     if_OS_Timer             timeServer_rpc;
+    consumes TimerReady              timeServer_notify;
 
     uses     if_OS_Storage           storage_rpc;
     dataport Buf                     storage_dp;

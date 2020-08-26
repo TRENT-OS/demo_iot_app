@@ -6,9 +6,7 @@
  */
 
 #include "LibDebug/Debug.h"
-#include "TimeServer.h"
 #include <camkes.h>
-
 
 //------------------------------------------------------------------------------
 int run(void)
@@ -23,11 +21,9 @@ int run(void)
         return -1;
     }
 
-    seL4_CPtr timeServer_notification = timeServer_rpc_notification();
-
     for(;;)
     {
-        seL4_Wait(timeServer_notification, NULL);
+        timeServer_notify_wait();
 
         // send a tick to the network stack
         e_timeout_nwstacktick_emit();

@@ -16,7 +16,11 @@ component SensorTemp {
     dataport    Buf                 cloudConnectorDataPort;
 
     uses        if_CloudConnector   cloudConnector_rpc;
+
+    //---------------------------------------------------
+    // Timer
     uses        if_OS_Timer         timeServer_rpc;
+    consumes    TimerReady          timeServer_notify;
 
     //---------------------------------------------------
     // Configuration server

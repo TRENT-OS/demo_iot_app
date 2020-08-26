@@ -74,6 +74,11 @@ static OS_FileSystem_Config_t cfgFs =
         storage_dp),
 };
 
+static const if_OS_Timer_t timer =
+    IF_OS_TIMER_ASSIGN(
+        timeServer_rpc,
+        timeServer_notify);
+
 // Private functions -----------------------------------------------------------
 
 static OS_Error_t
@@ -115,7 +120,17 @@ static uint64_t
 get_time_sec(
     void)
 {
-    return TimeServer_getTime(TimeServer_PRECISION_SEC);
+    OS_Error_t err;
+    uint64_t sec;
+
+    if ((err = TimeServer_getTime(&timer, TimeServer_PRECISION_SEC,
+                                  &sec)) != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("TimeServer_getTime() failed with %d", err);
+        sec = 0;
+    }
+
+    return sec;
 }
 
 // Public functions ------------------------------------------------------------

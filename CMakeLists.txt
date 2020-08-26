@@ -38,7 +38,6 @@ DeclareCAmkESComponent(
         os_configuration
         os_logger
         os_mqtt
-        TimeServer_client
 )
 
 DeclareCAmkESComponent(
@@ -165,7 +164,6 @@ DeclareCAmkESComponent(
     LIBS
         os_core_api
         os_libs
-        TimeServer_client
 )
 
 DeclareCAmkESComponent_TimeServer(

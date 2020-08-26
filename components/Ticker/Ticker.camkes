@@ -10,7 +10,8 @@ import <if_OS_Timer.camkes>;
 component Ticker {
     control;
 
-    uses   if_OS_Timer         timeServer_rpc;
+    uses        if_OS_Timer         timeServer_rpc;
+    consumes    TimerReady          timeServer_notify;
 
-    emits  EventDataAvailable   e_timeout_nwstacktick;
+    emits       EventDataAvailable  e_timeout_nwstacktick;
 }

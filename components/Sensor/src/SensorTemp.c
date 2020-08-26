@@ -5,7 +5,6 @@
  */
 
 #include "LibDebug/Debug.h"
-#include "TimeServer.h"
 
 #include "OS_ConfigService.h"
 
@@ -122,14 +121,12 @@ int run()
                                     (unsigned char*)payload,
                                     strlen((const char*)payload));
 
-    seL4_CPtr timeServer_notification = timeServer_rpc_notification();
-
     for (;;)
     {
         CloudConnector_write(serializedMsg, (void*)cloudConnectorDataPort,
                              len);
 
-        seL4_Wait(timeServer_notification, NULL);
+        timeServer_notify_wait();
     }
 
     return 0;

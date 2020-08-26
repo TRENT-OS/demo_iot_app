@@ -40,6 +40,7 @@ component NwStack {
     //-------------------------------------------------
     // interface TimeServer
     uses        if_OS_Timer           timeServer_rpc;
+    consumes    TimerReady            timeServer_notify;
 
     //-------------------------------------------------
     // interface Ethernet NIC driver
