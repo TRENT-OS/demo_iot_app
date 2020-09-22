@@ -9,18 +9,28 @@
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-CURRENT_SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
-DIR_BIN_SDK=${CURRENT_SCRIPT_DIR}/../../../bin
-
 PROJECT_PATH=$1
+SDK_PATH=$2
+
+CURRENT_SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
+DIR_BIN_SDK=${SDK_PATH}/bin
+USAGE_STRING="Usage: ./run_demo.sh <path-to-project-build> <path-to-sdk>"
 
 if [ -z ${PROJECT_PATH} ]; then
     echo "ERROR: missing path to project build!"
-    echo "Usage: ./run_demo.sh <path-to-project-build>"
+    echo ${USAGE_STRING}
     exit 1
 fi
 
-shift 1
+CMAKE_FILE_PATH=${SDK_PATH}/CMakeLists.txt
+BUILD_FILE_PATH=${SDK_PATH}/build-system.sh
+if [ ! -f ${CMAKE_FILE_PATH} ] || [ ! -f ${BUILD_FILE_PATH} ]; then
+    echo "ERROR: missing (or wrong) path to sdk!"
+    echo ${USAGE_STRING}
+    exit 1
+fi
+
+shift 2
 
 IMAGE_PATH=${PROJECT_PATH}/images/capdl-loader-image-arm-zynq7000
 
