@@ -18,9 +18,6 @@ import "components/ConfigServer/ConfigServer.camkes";
 
 #include "system_config.h"
 
-#include "UART/Uart.camkes"
-DECLARE_COMPONENT_UART(UART)
-
 #include "ChanMux/ChanMux.camkes"
 ChanMux_DEFINE_COMPONENT(ChanMux,
         chanMuxStorage, chan,
@@ -122,9 +119,9 @@ assembly {
 
 
         //----------------------------------------------------------------------
-        // MUX
+        // ChanMux + UART
         //----------------------------------------------------------------------
-        ChanMux_DECLARE_AND_CONNECT_INSTANCE_TO_UART(ChanMux, chanMux, uartDrv)
+        ChanMux_DECLARE_AND_CONNECT_INSTANCE_TO_UART(ChanMux, chanMux)
 
 
         //----------------------------------------------------------------------
@@ -165,12 +162,6 @@ assembly {
         ChanMux_INSTANCE_CONNECT_CHANNEL(chanMux, chanMuxStorage, chan)
 
         //----------------------------------------------------------------------
-        // UART
-        //----------------------------------------------------------------------
-        DECLARE_AND_CONNECT_INSTANCE_UART(
-            UART, uartDrv)
-
-        //----------------------------------------------------------------------
         // StorageServer
         //----------------------------------------------------------------------
         DECLARE_AND_CONNECT_INSTANCE_StorageServer(
@@ -191,11 +182,6 @@ assembly {
         // naming scheme is <component>.<interface>_attributes = <badge ID>
         ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
         ChanMux_ASSIGN_CLIENT_BADGE(chanMux, chanMuxStorage, CHANMUX_ID_STORAGE)
-
-        CONFIGURE_INSTANCE_UART(
-            uartDrv,
-            CFG_CHANMUX_DEFAULT_UART_PHYS_ADDR,
-            CFG_CHANMUX_DEFAULT_UART_INTR)
 
         CONFIGURE_INSTANCE_StorageServer(
             storageServer,
