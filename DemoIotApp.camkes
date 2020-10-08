@@ -30,7 +30,7 @@ ChanMux_DEFINE_COMPONENT(ChanMux,
 #include "ChanMux_Storage/ChanMux_Storage.camkes"
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
-DECLARE_COMPONENT_NIC_ChanMux(NwDriver)
+DECLARE_COMPONENT_NIC_ChanMux(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
 
 #include "EntropySource/camkes/EntropySource.camkes"
 DECLARE_COMPONENT_EntropySource(EntropySource)
