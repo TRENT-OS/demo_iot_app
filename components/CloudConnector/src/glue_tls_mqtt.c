@@ -197,10 +197,17 @@ int glue_tls_mqtt_write(Network* n,
 {
     Debug_ASSERT(buf    != NULL);
 
-    OS_Error_t ret = OS_Tls_write(tlsContext, buf, len);
+    size_t to_write = len;
+    OS_Error_t ret = OS_Tls_write(tlsContext, buf, &to_write);
     if (ret != OS_SUCCESS)
     {
         Debug_LOG_ERROR("OS_Tls_write() failed with: %d", ret);
+        return MQTT_FAILURE;
+    }
+    if (to_write != len)
+    {
+        Debug_LOG_ERROR("OS_Tls_write() wrote only %zd bytes (of %d bytes)",
+            to_write, len);
         return MQTT_FAILURE;
     }
 
