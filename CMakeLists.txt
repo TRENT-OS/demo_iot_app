@@ -1,5 +1,5 @@
 #
-# IoT Demo
+# Demo IoT
 #
 # Copyright (C) 2019-2020, Hensoldt Cyber GmbH
 #
