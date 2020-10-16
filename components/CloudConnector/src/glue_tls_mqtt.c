@@ -127,12 +127,6 @@ glue_tls_init(const char* serverIpAddress,
 
     OS_Network_Socket_t socketCfg;
 
-    if (caCertSize > OS_Tls_SIZE_CA_CERT_MAX)
-    {
-        Debug_LOG_ERROR("Server caCert size not supported!");
-        return OS_ERROR_INSUFFICIENT_SPACE;
-    }
-
     ret = init_socket_config(&socketCfg, serverIpAddress, serverPort);
     if (ret != OS_SUCCESS)
     {
@@ -149,11 +143,9 @@ glue_tls_init(const char* serverIpAddress,
 
     tlsCfg.library.socket.context = &socket;
     tlsCfg.library.crypto.handle = hCrypto;
-
-    memcpy(tlsCfg.library.crypto.caCert, caCert,
-           sizeof(tlsCfg.library.crypto.caCert));
+    tlsCfg.library.crypto.caCerts = caCert;
     Debug_LOG_DEBUG("Assigned ServerCert: %s",
-                    tlsCfg.library.crypto.caCert);
+                    tlsCfg.library.crypto.caCerts);
 
     ret = OS_Tls_init(&tlsContext, &tlsCfg);
     if (ret != OS_SUCCESS)
