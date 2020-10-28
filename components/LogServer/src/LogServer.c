@@ -43,7 +43,6 @@
 #define CLIENT_NWSTACK_ID           50
 
 #define PARTITION_ID                1
-#define LOG_FILENAME                "log.txt"
 
 uint32_t API_LOG_SERVER_GET_SENDER_ID(void);
 
@@ -56,7 +55,7 @@ static OS_LoggerConsumerCallback_t log_consumer_callback;
 static OS_LoggerFormat_Handle_t format;
 static OS_LoggerSubject_Handle_t subject;
 static OS_LoggerOutput_Handle_t filesystem, console;
-static OS_LoggerFile_Handle_t log_file;
+
 // Emitter configuration
 static OS_LoggerFilter_Handle_t filter_log_server;
 static OS_LoggerConsumer_Handle_t log_consumer_log_server;
@@ -155,9 +154,6 @@ void pre_init(void)
     // Emitter configuration
     OS_LoggerSubject_ctor(&subject_log_server);
 
-    // set up log file
-    OS_LoggerFile_ctor(&log_file, hFs, LOG_FILENAME);
-
     // set up backend
     OS_LoggerOutputFileSystem_ctor(&filesystem, &format);
     OS_LoggerOutputConsole_ctor(&console, &format);
@@ -212,7 +208,7 @@ void pre_init(void)
 
     // Emitter configuration
     OS_LoggerConsumer_ctor(&log_consumer_log_server, buf_log_server,
-                           &filter_log_server, &log_consumer_callback, &subject_log_server, &log_file,
+                           &filter_log_server, &log_consumer_callback, &subject_log_server, NULL,
                            LOG_SERVER_ID, "LOG-SERVER");
 
     // Emitter configuration: set up log emitter layer
@@ -229,7 +225,4 @@ void pre_init(void)
     OS_LoggerConsumerChain_append(&log_consumer_nwStack);
     // Emitter configuration
     OS_LoggerConsumerChain_append(&log_consumer_log_server);
-
-    // create log file
-    OS_LoggerFile_create(&log_file);
 }
