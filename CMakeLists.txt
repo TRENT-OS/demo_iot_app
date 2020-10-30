@@ -157,7 +157,7 @@ DeclareCAmkESComponent(
         os_libs
 )
 
-DeclareCAmkESComponent_TimeServer(
+TimeServer_DeclareCAmkESComponent(
     TimeServer
 )
 
