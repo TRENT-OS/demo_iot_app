@@ -33,7 +33,7 @@ DECLARE_COMPONENT_NIC_ChanMux(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
 DECLARE_COMPONENT_EntropySource(EntropySource)
 
 #include "TimeServer/camkes/TimeServer.camkes"
-DECLARE_COMPONENT_TimeServer(TimeServer)
+TimeServer_COMPONENT_DECLARE(TimeServer)
 
 #include "StorageServer/camkes/StorageServer.camkes"
 DECLARE_COMPONENT_StorageServer(StorageServer)
@@ -134,14 +134,16 @@ assembly {
         //----------------------------------------------------------------------
         // TimeServer
         //----------------------------------------------------------------------
-        DECLARE_AND_CONNECT_INSTANCE_TimeServer(
-            TimeServer,
+        component TimeServer timeServer;
+
+        TimeServer_INSTANCE_CONNECT_CLIENTS(
             timeServer,
             ticker.timeServer_rpc,          ticker.timeServer_notify,
             nwStack.timeServer_rpc,         nwStack.timeServer_notify,
             cloudConnector.timeServer_rpc,  cloudConnector.timeServer_notify,
             logServer.timeServer_rpc,       logServer.timeServer_notify,
-            sensorTemp.timeServer_rpc,      sensorTemp.timeServer_notify)
+            sensorTemp.timeServer_rpc,      sensorTemp.timeServer_notify
+        )
 
 
         //----------------------------------------------------------------------
@@ -193,16 +195,21 @@ assembly {
         ASSIGN_CLIENT_BADGE_StorageServer(
             logServer, storage_rpc, LOGGER_STORAGE_ID)
 
-        ASSIGN_CLIENT_BADGE_TimeServer(
-            ticker, timeServer_rpc, TIMESERVER_TK_ID)
-        ASSIGN_CLIENT_BADGE_TimeServer(
-            nwStack, timeServer_rpc, TIMESERVER_NS_ID)
-        ASSIGN_CLIENT_BADGE_TimeServer(
-            cloudConnector, timeServer_rpc, TIMESERVER_CC_ID)
-        ASSIGN_CLIENT_BADGE_TimeServer(
-            logServer, timeServer_rpc, TIMESERVER_LS_ID)
-        ASSIGN_CLIENT_BADGE_TimeServer(
-            sensorTemp, timeServer_rpc, TIMESERVER_ST_ID)
+        TimeServer_CLIENT_ASSIGN_BADGE(
+            ticker.timeServer_rpc, TIMESERVER_TK_ID
+        )
+        TimeServer_CLIENT_ASSIGN_BADGE(
+            nwStack.timeServer_rpc, TIMESERVER_NS_ID
+        )
+        TimeServer_CLIENT_ASSIGN_BADGE(
+            cloudConnector.timeServer_rpc, TIMESERVER_CC_ID
+        )
+        TimeServer_CLIENT_ASSIGN_BADGE(
+            logServer.timeServer_rpc, TIMESERVER_LS_ID
+        )
+        TimeServer_CLIENT_ASSIGN_BADGE(
+            sensorTemp.timeServer_rpc, TIMESERVER_ST_ID
+        )
 
 
         /* assign an initial value to semaphore */
