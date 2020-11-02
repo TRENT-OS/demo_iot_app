@@ -36,7 +36,7 @@ DECLARE_COMPONENT_EntropySource(EntropySource)
 TimeServer_COMPONENT_DECLARE(TimeServer)
 
 #include "StorageServer/camkes/StorageServer.camkes"
-DECLARE_COMPONENT_StorageServer(StorageServer)
+StorageServer_COMPONENT_DECLARE(StorageServer)
 
 assembly {
     composition {
@@ -166,11 +166,17 @@ assembly {
         //----------------------------------------------------------------------
         // StorageServer
         //----------------------------------------------------------------------
-        DECLARE_AND_CONNECT_INSTANCE_StorageServer(
-            StorageServer, storageServer,
-            chanMuxStorage.storage_rpc, chanMuxStorage.storage_port,
+        component   StorageServer       storageServer;
+
+        StorageServer_INSTANCE_CONNECT(
+            storageServer,
+            chanMuxStorage.storage_rpc, chanMuxStorage.storage_port
+        )
+        StorageServer_INSTANCE_CONNECT_CLIENTS(
+            storageServer,
             configServer.storage_rpc,  configServer.storage_dp,
-            logServer.storage_rpc, logServer.storage_dp)
+            logServer.storage_rpc, logServer.storage_dp
+        )
     }
     configuration {
         /* client id's */
@@ -185,15 +191,15 @@ assembly {
         ChanMux_ASSIGN_CLIENT_BADGE(chanMux, nwDriver, CHANMUX_ID_NIC)
         ChanMux_ASSIGN_CLIENT_BADGE(chanMux, chanMuxStorage, CHANMUX_ID_STORAGE)
 
-        CONFIGURE_INSTANCE_StorageServer(
+        StorageServer_INSTANCE_CONFIGURE_CLIENTS(
             storageServer,
             CONFIGSERVER_STORAGE_OFFSET, CONFIGSERVER_STORAGE_SIZE,
-            LOGSERVER_STORAGE_OFFSET,    LOGSERVER_STORAGE_SIZE)
-
-        ASSIGN_CLIENT_BADGE_StorageServer(
-            configServer, storage_rpc, CONFIGSERVER_STORAGE_ID)
-        ASSIGN_CLIENT_BADGE_StorageServer(
-            logServer, storage_rpc, LOGGER_STORAGE_ID)
+            LOGSERVER_STORAGE_OFFSET,    LOGSERVER_STORAGE_SIZE
+        )
+        StorageServer_CLIENT_ASSIGN_BADGES(
+            configServer.storage_rpc,
+            logServer.storage_rpc
+        )
 
         TimeServer_CLIENT_ASSIGN_BADGES(
             ticker.timeServer_rpc,
