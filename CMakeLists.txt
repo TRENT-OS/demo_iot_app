@@ -58,6 +58,7 @@ DeclareCAmkESComponent(
     LogServer
     SOURCES
         components/LogServer/src/LogServer.c
+        components/LogServer/src/custom_log_format.c
     C_FLAGS
         -Wall
         -Werror
