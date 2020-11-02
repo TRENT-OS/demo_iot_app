@@ -8,17 +8,12 @@
 #include "LibDebug/Debug.h"
 #include "TimeServer.h"
 
-#include "Logger/Server/OS_LoggerFile.h"
-
 #include "Logger/Server/OS_LoggerConsumerChain.h"
 #include "Logger/Server/OS_LoggerConsumer.h"
 
 #include "Logger/Server/OS_LoggerOutputConsole.h"
-#include "Logger/Server/OS_LoggerOutputFileSystem.h"
 
 #include "Logger/Client/OS_LoggerEmitter.h"
-
-#include "OS_FileSystem.h"
 
 #include <stdio.h>
 
@@ -54,7 +49,7 @@ static OS_LoggerConsumer_Handle_t log_consumer_configSrv,
 static OS_LoggerConsumerCallback_t log_consumer_callback;
 static OS_LoggerFormat_Handle_t format;
 static OS_LoggerSubject_Handle_t subject;
-static OS_LoggerOutput_Handle_t filesystem, console;
+static OS_LoggerOutput_Handle_t console;
 
 // Emitter configuration
 static OS_LoggerFilter_Handle_t filter_log_server;
@@ -63,57 +58,12 @@ static OS_LoggerSubject_Handle_t subject_log_server;
 static OS_LoggerOutput_Handle_t console_log_server;
 static char buf_log_server[DATABUFFER_SIZE];
 
-static OS_FileSystem_Handle_t hFs;
-static OS_FileSystem_Config_t cfgFs =
-{
-    .type = OS_FileSystem_Type_FATFS,
-    .size = OS_FileSystem_USE_STORAGE_MAX,
-    .storage = IF_OS_STORAGE_ASSIGN(
-        storage_rpc,
-        storage_dp),
-};
-
 static const if_OS_Timer_t timer =
     IF_OS_TIMER_ASSIGN(
         timeServer_rpc,
         timeServer_notify);
 
 // Private functions -----------------------------------------------------------
-
-static OS_Error_t
-initFileSystem(
-    void)
-{
-    OS_Error_t err = OS_FileSystem_init(&hFs, &cfgFs);
-    if (OS_SUCCESS != err)
-    {
-        printf("OS_FileSystem_init failed with error code %d!", err);
-        return err;
-    }
-    err = OS_FileSystem_format(hFs);
-    if (OS_SUCCESS != err)
-    {
-        printf("OS_FileSystem_format failed with error code %d!", err);
-        goto err0;
-    }
-    err = OS_FileSystem_mount(hFs);
-    if (OS_SUCCESS != err)
-    {
-        printf("OS_FileSystem_mount failed with error code %d!", err);
-        goto err0;
-    }
-
-    return OS_SUCCESS;
-
-err0:
-    err =  OS_FileSystem_free(hFs);
-    if (OS_SUCCESS != err)
-    {
-        printf("OS_FileSystem_free failed with error code %d!", err);
-    }
-
-    return err;
-}
 
 static uint64_t
 get_time_sec(
@@ -136,13 +86,6 @@ get_time_sec(
 
 void pre_init(void)
 {
-    // create filesystem
-    if (initFileSystem() != OS_SUCCESS)
-    {
-        printf("Fail to init filesystem!\n");
-        return;
-    }
-
     // set up consumer chain
     OS_LoggerConsumerChain_getInstance();
 
@@ -155,16 +98,11 @@ void pre_init(void)
     OS_LoggerSubject_ctor(&subject_log_server);
 
     // set up backend
-    OS_LoggerOutputFileSystem_ctor(&filesystem, &format);
     OS_LoggerOutputConsole_ctor(&console, &format);
     // Emitter configuration
     OS_LoggerOutputConsole_ctor(&console_log_server, &format);
 
     // attach observed object to subject
-    OS_LoggerSubject_attach(
-        (OS_LoggerAbstractSubject_Handle_t*)&subject,
-        &filesystem);
-
     OS_LoggerSubject_attach(
         (OS_LoggerAbstractSubject_Handle_t*)&subject,
         &console);
