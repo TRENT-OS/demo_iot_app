@@ -131,7 +131,7 @@ DeclareCAmkESComponent_NIC_ChanMux(
     CHANMUX_CHANNEL_NIC_DATA
 )
 
-DeclareCAmkESComponent_StorageServer(
+StorageServer_DeclareCAmkESComponent(
     StorageServer
 )
 
