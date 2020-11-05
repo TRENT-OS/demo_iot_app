@@ -30,7 +30,7 @@ ChanMux_DEFINE_COMPONENT(ChanMux,
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
 
 #include "EntropySource/camkes/EntropySource.camkes"
-DECLARE_COMPONENT_EntropySource(EntropySource)
+EntropySource_COMPONENT_DECLARE(EntropySource)
 
 #include "TimeServer/camkes/TimeServer.camkes"
 TimeServer_COMPONENT_DECLARE(TimeServer)
@@ -77,8 +77,9 @@ assembly {
         connection seL4RPCCall          cloudConnector_logServer         (from cloudConnector.logServer_rpc, to logServer.logServer_rpc);
         connection seL4SharedData       cloudConnector_logServer_data    (from cloudConnector.logServer_dp,  to logServer.cloudConnector_dp);
 
-        DECLARE_AND_CONNECT_INSTANCE_EntropySource(
-            EntropySource,
+        component  EntropySource        entropySource;
+
+        EntropySource_INSTANCE_CONNECT_CLIENT(
             entropySource,
             cloudConnector.entropy_rpc,
             cloudConnector.entropy_port)
