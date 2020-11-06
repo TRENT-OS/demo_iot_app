@@ -27,6 +27,7 @@ ChanMux_UART_COMPONENT_DEFINE(
 )
 
 #include "ChanMux_Storage/ChanMux_Storage.camkes"
+ChanMux_Storage_COMPONENT_DECLARE(ChanMux_Storage)
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 DECLARE_COMPONENT_NIC_ChanMux(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
