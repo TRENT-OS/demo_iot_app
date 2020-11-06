@@ -135,7 +135,7 @@ StorageServer_DeclareCAmkESComponent(
     StorageServer
 )
 
-DeclareCAmkESComponent_ChanMux_Storage(
+ChanMux_Storage_DeclareCAmkESComponent(
     ChanMux_Storage
 )
 
