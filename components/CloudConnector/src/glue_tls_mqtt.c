@@ -223,7 +223,7 @@ int glue_tls_mqtt_read(Network* n,
     memset ( buf, 0, len );
 
     OS_Error_t ret = OS_Tls_read(tlsContext, buf, &lengthRead);
-    if (ret != OS_SUCCESS)
+    if (ret != OS_SUCCESS && ret != OS_ERROR_CONNECTION_CLOSED)
     {
         Debug_LOG_ERROR("OS_Tls_read() failed with: %d", ret);
         return MQTT_FAILURE;
