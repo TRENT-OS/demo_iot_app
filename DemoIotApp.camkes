@@ -27,19 +27,19 @@ ChanMux_UART_COMPONENT_DEFINE(
 )
 
 #include "ChanMux_Storage/ChanMux_Storage.camkes"
-ChanMux_Storage_COMPONENT_DECLARE(ChanMux_Storage)
+ChanMux_Storage_COMPONENT_DEFINE(ChanMux_Storage)
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
-NIC_ChanMux_COMPONENT_DECLARE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
+NIC_ChanMux_COMPONENT_DEFINE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
 
 #include "EntropySource/camkes/EntropySource.camkes"
-EntropySource_COMPONENT_DECLARE(EntropySource)
+EntropySource_COMPONENT_DEFINE(EntropySource)
 
 #include "TimeServer/camkes/TimeServer.camkes"
-TimeServer_COMPONENT_DECLARE(TimeServer)
+TimeServer_COMPONENT_DEFINE(TimeServer)
 
 #include "StorageServer/camkes/StorageServer.camkes"
-StorageServer_COMPONENT_DECLARE(StorageServer)
+StorageServer_COMPONENT_DEFINE(StorageServer)
 
 assembly {
     composition {
