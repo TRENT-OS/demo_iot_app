@@ -94,8 +94,8 @@ static const ChanMux_ChannelCtx_t channelCtx[] =
         nwDriver_ctrl_portWrite,
         nwDriver_data_portRead,
         nwDriver_data_portWrite,
-        nwDriver_ctrl_DataAvailable_emit,
-        nwDriver_data_DataAvailable_emit),
+        nwDriver_ctrl_eventHasData_emit,
+        nwDriver_data_eventHasData_emit),
 
     CHANMUX_CHANNEL_CTX(
         CHANMUX_CHANNEL_NVM,
@@ -103,7 +103,7 @@ static const ChanMux_ChannelCtx_t channelCtx[] =
         nvm_fifo[0], // must be the buffer and not a pointer
         CHANMUX_DATAPORT_ASSIGN(chanMuxStorage_chan_portRead,
                                 chanMuxStorage_chan_portWrite),
-        chanMuxStorage_chan_DataAvailable_emit),
+        chanMuxStorage_chan_eventHasData_emit),
 };
 
 
