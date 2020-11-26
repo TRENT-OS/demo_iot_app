@@ -26,8 +26,8 @@ ChanMux_UART_COMPONENT_DEFINE(
     nwDriver, ctrl
 )
 
-#include "ChanMux_Storage/ChanMux_Storage.camkes"
-ChanMux_Storage_COMPONENT_DEFINE(ChanMux_Storage)
+#include "Storage_ChanMux/Storage_ChanMux.camkes"
+Storage_ChanMux_COMPONENT_DEFINE(Storage_ChanMux)
 
 #include "NIC_ChanMux/NIC_ChanMux.camkes"
 NIC_ChanMux_COMPONENT_DEFINE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
@@ -170,7 +170,7 @@ assembly {
         //----------------------------------------------------------------------
         // ChanMuxStorage
         //----------------------------------------------------------------------
-        component   ChanMux_Storage     chanMuxStorage;
+        component   Storage_ChanMux     chanMuxStorage;
 
         ChanMux_UART_INSTANCE_CONNECT_CLIENT(
             chanMux_UART,
