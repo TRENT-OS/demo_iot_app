@@ -1,3 +1,4 @@
+/*  Copyright (C) 2020, Hensoldt Cyber GmbH */
 #include "LibDebug/Debug.h"
 #include <camkes.h>
 
