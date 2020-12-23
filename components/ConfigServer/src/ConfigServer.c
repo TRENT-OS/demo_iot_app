@@ -7,7 +7,7 @@
 
 #include <camkes.h>
 
-#include "LibDebug/Debug.h"
+#include "lib_debug/Debug.h"
 #include "init_config_backend.h"
 
 void post_init(void)

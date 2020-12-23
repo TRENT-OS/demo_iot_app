@@ -8,8 +8,8 @@
 
 #include "MQTT_client.h"
 
-#include "compiler.h"
-#include "LibDebug/Debug.h"
+#include "lib_compiler/compiler.h"
+#include "lib_debug/Debug.h"
 
 #define MAX_PACKET_ID   65535 // according to the MQTT specification
 
