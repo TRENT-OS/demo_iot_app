@@ -110,7 +110,6 @@ DeclareCAmkESComponent(
         include/util/helper_func.c
     C_FLAGS
         -Wall -Werror
-        -DOS_NWSTACK_AS_CLIENT
         -DOS_CONFIG_SERVICE_CAMKES_CLIENT
         -DCFG_ETH_ADDR=ETH_ADDR
         -DCFG_ETH_GATEWAY_ADDR=ETH_GATEWAY_ADDR
