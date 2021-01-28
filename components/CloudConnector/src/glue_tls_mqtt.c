@@ -1,7 +1,7 @@
 /*
  *  MQTT/mbedTLS glue layer
  *
- *  Copyright (C) 2020, Hensoldt Cyber GmbH
+ *  Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
  */
 
 #include "glue_tls_mqtt.h"

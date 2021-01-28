@@ -1,7 +1,7 @@
 /*
    *  CAmkES configuration file of the Sensor component.
    *
-   *  Copyright (C) 2020, Hensoldt Cyber GmbH
+   *  Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
 */
 
 import <if_OS_ConfigService.camkes>;

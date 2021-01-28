@@ -1,7 +1,7 @@
 /*
  *  MQTT client based on PAHO
  *
- *  Copyright (C) 2020, Hensoldt Cyber GmbH
+ *  Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
  *
  *  This code is based on PAHO sample code Copyright (c) 2014, 2017 IBM Corp.
  */

@@ -1,7 +1,7 @@
 /*
  *  MQTT Network helper functions
  *
- *  Copyright (C) 2020, Hensoldt Cyber GmbH
+ *  Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
  */
 
 #include "MQTT_net.h"

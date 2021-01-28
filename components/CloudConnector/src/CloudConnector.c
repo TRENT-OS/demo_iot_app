@@ -1,7 +1,7 @@
 /**
  * CloudConnector component establishes an MQTT connection from the Sensor to the cloud.
  *
- * Copyright (C) 2020, Hensoldt Cyber GmbH
+ * Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
  */
 
 #include "lib_debug/Debug.h"

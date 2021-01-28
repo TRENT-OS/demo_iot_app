@@ -1,7 +1,7 @@
 /**
  * Main CAmkES configuration file of the IoT demo application.
  *
- * Copyright (C) 2020, Hensoldt Cyber GmbH
+ * Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
  */
 
 import <std_connector.camkes>;

@@ -1,7 +1,7 @@
 /*
    *  Init file for the CloudConnector.
    *
-   *  Copyright (C) 2020, Hensoldt Cyber GmbH
+   *  Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
 */
 
 

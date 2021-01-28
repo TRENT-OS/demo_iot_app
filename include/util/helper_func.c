@@ -1,7 +1,7 @@
 /**
  * Collection of helper functions used by several component.
  *
- * Copyright (C) 2020, Hensoldt Cyber GmbH
+ * Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
  */
 
 #include <string.h>
