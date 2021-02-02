@@ -18,7 +18,7 @@
 
 #include "OS_NetworkStackClient.h"
 
-#include "lib_util/managedBuffer.h"
+#include "lib_utils/managedBuffer.h"
 
 /* Defines -------------------------------------------------------------------*/
 // the following defines are the parameter names that need to match the settings

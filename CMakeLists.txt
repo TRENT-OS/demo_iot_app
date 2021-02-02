@@ -92,7 +92,7 @@ DeclareCAmkESComponent(
         os_core_api
         lib_compiler
         lib_debug
-        lib_util
+        lib_utils
         os_crypto
         os_mqtt
         os_tls
