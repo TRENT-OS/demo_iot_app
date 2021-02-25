@@ -64,13 +64,26 @@ Timer_getTimeMs(void)
 }
 
 //------------------------------------------------------------------------------
-void post_init()
+void
+post_init(void)
 {
     Debug_LOG_INFO("[NwStack '%s'] starting", get_instance_name());
 
-    // can't make this "static const" or even "static" because the data ports
-    // are allocated at runtime
-    OS_NetworkStack_CamkesConfig_t camkes_config =
+    static OS_NetworkStack_SocketResources_t
+        socks = {
+                .notify_write       = e_write_emit,
+                .wait_write         = c_write_wait,
+
+                .notify_read        = e_read_emit,
+                .wait_read          = c_read_wait,
+
+                .notify_connection  = e_conn_emit,
+                .wait_connection    = c_conn_wait,
+
+                .buf = OS_DATAPORT_ASSIGN(port_app_io)
+            };
+
+    static const OS_NetworkStack_CamkesConfig_t camkes_config =
     {
         .wait_loop_event         = event_tick_or_data_wait,
 
@@ -83,6 +96,9 @@ void post_init()
 
             .stackTS_lock       = stackThreadSafeMutex_lock,
             .stackTS_unlock     = stackThreadSafeMutex_unlock,
+
+            .number_of_sockets  = 1,
+            .sockets = &socks
         },
 
         .drv_nic =
@@ -104,23 +120,6 @@ void post_init()
             }
         },
     };
-
-    static OS_NetworkStack_SocketResources_t
- socks = {
-                .notify_write       = e_write_emit,
-                .wait_write         = c_write_wait,
-
-                .notify_read        = e_read_emit,
-                .wait_read          = c_read_wait,
-
-                .notify_connection  = e_conn_emit,
-                .wait_connection    = c_conn_wait,
-
-                .buf = OS_DATAPORT_ASSIGN(port_app_io)
-            };
-
-    camkes_config.internal.number_of_sockets = 1;
-    camkes_config.internal.sockets = &socks;
 
     OS_Error_t ret;
 
@@ -191,7 +190,8 @@ void post_init()
 }
 
 //------------------------------------------------------------------------------
-int run()
+int
+run(void)
 {
     if (!initSuccessfullyCompleted)
     {
