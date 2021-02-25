@@ -52,7 +52,6 @@ component NwStack {
     // interface Application
     provides    if_OS_Socket            network_stack_rpc;
     dataport    Buf                     port_app_io;
-    emits       ServiceReady            event_network_init_done;
 
     //---------------------------------------------------
     // Configuration server

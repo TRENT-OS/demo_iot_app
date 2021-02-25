@@ -43,6 +43,8 @@ static const if_OS_Timer_t timer =
         timeServer_rpc,
         timeServer_notify);
 
+static bool initSuccessfullyCompleted = false;
+
 //------------------------------------------------------------------------------
 // network stack's PicTCP OS adaption layer calls this.
 uint64_t
@@ -61,9 +63,8 @@ Timer_getTimeMs(void)
     return ms;
 }
 
-
 //------------------------------------------------------------------------------
-int run()
+void post_init()
 {
     Debug_LOG_INFO("[NwStack '%s'] starting", get_instance_name());
 
@@ -71,7 +72,6 @@ int run()
     // are allocated at runtime
     OS_NetworkStack_CamkesConfig_t camkes_config =
     {
-        .notify_init_done        = event_network_init_done_emit,
         .wait_loop_event         = event_tick_or_data_wait,
 
         .internal =
@@ -103,11 +103,6 @@ int run()
                 .get_mac        = nic_driver_get_mac_address,
             }
         },
-
-        .app =
-        {
-            .notify_init_done   = event_network_init_done_emit,
-        }
     };
 
     static OS_NetworkStack_SocketResources_t
@@ -142,7 +137,7 @@ int run()
     if (ret != OS_SUCCESS)
     {
         Debug_LOG_ERROR("OS_ConfigService_createHandleRemote() failed with :%d", ret);
-        return ret;
+        return;
     }
 
     // Get the needed param values one by one from config server, using below API
@@ -155,7 +150,7 @@ int run()
     {
         Debug_LOG_ERROR("helper_func_getConfigParameter() for param %s failed with :%d",
                         CFG_ETH_ADDR, ret);
-        return ret;
+        return;
     }
     Debug_LOG_INFO("Retrieved TAP 0 IP Addr: %s", DEV_ADDR);
 
@@ -168,7 +163,7 @@ int run()
     {
         Debug_LOG_ERROR("helper_func_getConfigParameter() for param %s failed with :%d",
                         CFG_ETH_GATEWAY_ADDR, ret);
-        return ret;
+        return;
     }
     Debug_LOG_INFO("Retrieved TAP 0 GATEWAY ADDR: %s", GATEWAY_ADDR);
 
@@ -181,12 +176,31 @@ int run()
     {
         Debug_LOG_ERROR("helper_func_getConfigParameter() for param %s failed with :%d",
                         CFG_ETH_SUBNET_MASK, ret);
-        return ret;
+        return;
     }
     Debug_LOG_INFO("Retrieved TAP  0 SUBNETMASK: %s", SUBNET_MASK);
 
+    ret = OS_NetworkStack_init(&camkes_config, &param_config);
+    if (ret != OS_SUCCESS)
+    {
+        Debug_LOG_FATAL("[NwStack '%s'] OS_NetworkStack_init() failed, error %d",
+                        get_instance_name(), ret);
+        return;
+    }
+    initSuccessfullyCompleted = true;
+}
 
-    ret = OS_NetworkStack_run(&camkes_config, &param_config);
+//------------------------------------------------------------------------------
+int run()
+{
+    if (!initSuccessfullyCompleted)
+    {
+        Debug_LOG_FATAL("[NwStack '%s'] could not call OS_NetworkStack_run() as post_init() failed",
+                        get_instance_name());
+        return -1;
+    }
+
+    OS_Error_t ret = OS_NetworkStack_run();
     if (ret != OS_SUCCESS)
     {
         Debug_LOG_FATAL("[NwStack '%s'] OS_NetworkStack_run() failed, error %d",

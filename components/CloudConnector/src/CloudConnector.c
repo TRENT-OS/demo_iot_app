@@ -110,9 +110,6 @@ uint64_t get_mqtt_timestamp_ms()
 
 OS_Error_t init_config_handle(OS_ConfigServiceHandle_t* configHandle);
 
-extern OS_Error_t OS_NetworkAPP_RT(
-    OS_Network_Context_t ctx);
-
 //==============================================================================
 // internal functions
 //==============================================================================
@@ -438,9 +435,6 @@ static int handle_CC_FSM_INIT(CC_FSM_t* self)
         Debug_LOG_ERROR("set_mqtt_options() failed with code %d", ret);
         return ret;
     }
-
-    Debug_LOG_DEBUG("Waiting on NwStack init ..." );
-    OS_NetworkAPP_RT(NULL);
 
     Debug_LOG_INFO("Setting TLS to IP:%s Port:%u ...", serverIP, serverPort);
     ret = glue_tls_init(serverIP, serverCert, sizeof(serverCert), serverPort);
