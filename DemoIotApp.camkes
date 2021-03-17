@@ -71,7 +71,7 @@ assembly {
         component  CloudConnector       cloudConnector;
 
         connection seL4RPCCall          cloudConnector_nwStack           (from cloudConnector.network_stack_rpc, to nwStack.network_stack_rpc);
-        connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.nwStack_dp,        to nwStack.port_app_io);
+        connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.network_stack_port,        to nwStack.network_stack_port);
 
         connection seL4RPCCall          cloudConnector_configServer      (from cloudConnector.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
         connection seL4SharedData       cloudConnector_configServer_data (from cloudConnector.configServer_dp,        to configServer.cloudConnector_dp);
@@ -113,14 +113,14 @@ assembly {
 
         NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
             nwDriver,
-            nwStack.nic_driver,  nwStack.port_nic_to, nwStack.port_nic_from, nwStack.event_tick_or_data
+            nwStack.nic_driver,  nwStack.nic_port_to, nwStack.nic_port_from, nwStack.event_tick_or_data
         )
 
         connection seL4RPCCall            NwStack_configuration_server     (from nwStack.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData         NwStack_config_data              (from nwStack.configServer_dp,        to configServer.nwStack_dp);
+        connection seL4SharedData         NwStack_config_data              (from nwStack.configServer_dp,        to configServer.network_stack_port);
 
         connection seL4RPCCall            NwStack_logServer                (from nwStack.logServer_rpc, to logServer.logServer_rpc);
-        connection seL4SharedData         NwStack_logServer_data           (from nwStack.logServer_dp, to logServer.nwStack_dp);
+        connection seL4SharedData         NwStack_logServer_data           (from nwStack.logServer_dp, to logServer.network_stack_port);
 
 
         //----------------------------------------------------------------------

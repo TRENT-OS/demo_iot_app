@@ -27,7 +27,7 @@
 #define DATABUFFER_SERVER_02    (void *)cloudConnector_dp
 #define DATABUFFER_SERVER_03    (void *)sensorTemp_dp
 #define DATABUFFER_SERVER_04    (void *)nwDriver_dp
-#define DATABUFFER_SERVER_05    (void *)nwStack_dp
+#define DATABUFFER_SERVER_05    (void *)network_stack_port
 
 // log server id
 #define LOG_SERVER_ID               0

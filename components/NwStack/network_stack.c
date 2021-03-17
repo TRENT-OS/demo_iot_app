@@ -80,7 +80,7 @@ post_init(void)
                 .notify_connection  = e_conn_emit,
                 .wait_connection    = c_conn_wait,
 
-                .buf = OS_DATAPORT_ASSIGN(port_app_io)
+        .buf = OS_DATAPORT_ASSIGN(network_stack_port)
             };
 
     static const OS_NetworkStack_CamkesConfig_t camkes_config =
@@ -106,11 +106,11 @@ post_init(void)
             // NIC -> Stack
             .from =
             {
-                .io = (void**)( &(port_nic_from)),
+                .io = (void**)( &(nic_port_from)),
                 .size = NIC_DRIVER_RINGBUFFER_NUMBER_ELEMENTS
             },
             // Stack -> NIC
-            .to = OS_DATAPORT_ASSIGN(port_nic_to),
+            .to = OS_DATAPORT_ASSIGN(nic_port_to),
 
             .rpc =
             {
