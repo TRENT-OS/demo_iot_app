@@ -13,7 +13,7 @@ import "../CloudConnector/if_CloudConnector.camkes";
 component SensorTemp {
     control;
 
-    dataport    Buf                 cloudConnectorDataPort;
+    dataport    Buf                 cloudConnector_port;
 
     uses        if_CloudConnector   cloudConnector_rpc;
 

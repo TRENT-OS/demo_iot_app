@@ -477,7 +477,7 @@ static int handle_CC_FSM_INIT(CC_FSM_t* self)
 //------------------------------------------------------------------------------
 static int handle_CC_FSM_NEW_MESSAGE(CC_FSM_t* self)
 {
-    const char* receivedBuf = (const char*) sensor_dp;
+    const char* receivedBuf = (const char*) sensor_port;
     CC_FSM_PAHO_NetCtx_t* netCtx_server = &(self->paho.server_netCtx);
 
     Debug_LOG_INFO("New message received from client", __func__);

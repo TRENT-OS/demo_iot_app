@@ -123,7 +123,7 @@ int run()
 
     for (;;)
     {
-        CloudConnector_write(serializedMsg, (void*)cloudConnectorDataPort,
+        CloudConnector_write(serializedMsg, (void*)cloudConnector_port,
                              len);
 
         timeServer_notify_wait();

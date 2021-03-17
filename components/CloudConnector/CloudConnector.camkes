@@ -17,7 +17,7 @@ import <if_OS_Logger.camkes>;
 component CloudConnector {
     control;
 
-    dataport    Buf                         sensor_dp;
+    dataport    Buf                         sensor_port;
 
     provides    if_CloudConnector           cloudConnector_rpc;
 
