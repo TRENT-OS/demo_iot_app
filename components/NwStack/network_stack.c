@@ -128,7 +128,7 @@ post_init(void)
 
     static OS_ConfigService_ClientCtx_t ctx =
     {
-        .dataport = OS_DATAPORT_ASSIGN(configServer_dp)
+        .dataport = OS_DATAPORT_ASSIGN(configServer_port)
     };
     ret = OS_ConfigService_createHandleRemote(
             &ctx,

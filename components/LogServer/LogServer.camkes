@@ -14,7 +14,7 @@ component LogServer {
 
     provides if_OS_Logger            logServer_rpc;
 
-    dataport Buf                     configServer_dp;
+    dataport Buf                     configServer_port;
     dataport Buf                     cloudConnector_dp;
     dataport Buf                     sensorTemp_dp;
     dataport Buf                     nwDriver_dp;

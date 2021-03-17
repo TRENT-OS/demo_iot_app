@@ -56,10 +56,10 @@ assembly {
         component  SensorTemp       sensorTemp;
 
         connection seL4SharedData   cloudConnectorData_sensorTempData   (from sensorTemp.cloudConnector_port, to cloudConnector.sensor_port);
-        connection seL4RPCCall      cloudConnector_sensorTemp           (from sensorTemp.cloudConnector_rpc,     to cloudConnector.cloudConnector_rpc);
+        connection seL4RPCCall      cloudConnector_sensorTemp           (from sensorTemp.cloudConnector_rpc,  to cloudConnector.cloudConnector_rpc);
 
         connection seL4RPCCall      sensorTemp_configServer             (from sensorTemp.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData   sensorTemp_configServer_data        (from sensorTemp.configServer_dp,        to configServer.sensorTemp_dp);
+        connection seL4SharedData   sensorTemp_configServer_data        (from sensorTemp.configServer_port,      to configServer.sensorTemp_dp);
 
         connection seL4RPCCall      sensorTemp_logServer                (from sensorTemp.logServer_rpc, to logServer.logServer_rpc);
         connection seL4SharedData   sensorTemp_logServer_data           (from sensorTemp.logServer_dp,  to logServer.sensorTemp_dp);
@@ -74,7 +74,7 @@ assembly {
         connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.network_stack_port,        to nwStack.network_stack_port);
 
         connection seL4RPCCall          cloudConnector_configServer      (from cloudConnector.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData       cloudConnector_configServer_data (from cloudConnector.configServer_dp,        to configServer.cloudConnector_dp);
+        connection seL4SharedData       cloudConnector_configServer_data (from cloudConnector.configServer_port,      to configServer.cloudConnector_dp);
 
         connection seL4RPCCall          cloudConnector_logServer         (from cloudConnector.logServer_rpc, to logServer.logServer_rpc);
         connection seL4SharedData       cloudConnector_logServer_data    (from cloudConnector.logServer_dp,  to logServer.cloudConnector_dp);
@@ -117,7 +117,7 @@ assembly {
         )
 
         connection seL4RPCCall            NwStack_configuration_server     (from nwStack.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData         NwStack_config_data              (from nwStack.configServer_dp,        to configServer.network_stack_port);
+        connection seL4SharedData         NwStack_config_data              (from nwStack.configServer_port,      to configServer.network_stack_port);
 
         connection seL4RPCCall            NwStack_logServer                (from nwStack.logServer_rpc, to logServer.logServer_rpc);
         connection seL4SharedData         NwStack_logServer_data           (from nwStack.logServer_dp, to logServer.network_stack_port);
@@ -163,7 +163,7 @@ assembly {
         component   ConfigServer     configServer;
 
         connection  seL4RPCCall      configServer_logServer            (from configServer.logServer_rpc, to logServer.logServer_rpc);
-        connection  seL4SharedData   configServer_logServer_data       (from configServer.logServer_dp,  to logServer.configServer_dp);
+        connection  seL4SharedData   configServer_logServer_data       (from configServer.logServer_dp,  to logServer.configServer_port);
 
 
         //----------------------------------------------------------------------

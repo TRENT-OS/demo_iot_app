@@ -56,7 +56,7 @@ component NwStack {
     //---------------------------------------------------
     // Configuration server
     uses     if_OS_ConfigService OS_ConfigServiceServer;
-    dataport Buf                 configServer_dp;
+    dataport Buf                 configServer_port;
 
     //-------------------------------------------------
     // interface to log server

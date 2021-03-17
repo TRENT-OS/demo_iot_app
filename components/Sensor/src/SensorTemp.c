@@ -37,7 +37,7 @@ initializeSensor(void)
 {
     static OS_ConfigService_ClientCtx_t ctx =
     {
-        .dataport = OS_DATAPORT_ASSIGN(configServer_dp)
+        .dataport = OS_DATAPORT_ASSIGN(configServer_port)
     };
     OS_Error_t err = OS_ConfigService_createHandleRemote(
                          &ctx,
