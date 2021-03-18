@@ -64,24 +64,23 @@ Timer_getTimeMs(void)
 }
 
 //------------------------------------------------------------------------------
-void
-post_init(void)
+void post_init(void)
 {
     Debug_LOG_INFO("[NwStack '%s'] starting", get_instance_name());
 
-    static OS_NetworkStack_SocketResources_t
-        socks = {
-                .notify_write       = e_write_emit,
-                .wait_write         = c_write_wait,
+    static OS_NetworkStack_SocketResources_t socks =
+    {
+        .notify_write       = e_write_emit,
+        .wait_write         = c_write_wait,
 
-                .notify_read        = e_read_emit,
-                .wait_read          = c_read_wait,
+        .notify_read        = e_read_emit,
+        .wait_read          = c_read_wait,
 
-                .notify_connection  = e_conn_emit,
-                .wait_connection    = c_conn_wait,
+        .notify_connection  = e_conn_emit,
+        .wait_connection    = c_conn_wait,
 
         .buf = OS_DATAPORT_ASSIGN(network_stack_port)
-            };
+    };
 
     static const OS_NetworkStack_CamkesConfig_t camkes_config =
     {
@@ -97,8 +96,8 @@ post_init(void)
             .stackTS_lock       = stackThreadSafeMutex_lock,
             .stackTS_unlock     = stackThreadSafeMutex_unlock,
 
-            .number_of_sockets = OS_NETWORK_MAXIMUM_SOCKET_NO,
-            .sockets = &socks
+            .number_of_sockets  = OS_NETWORK_MAXIMUM_SOCKET_NO,
+            .sockets            = &socks
         },
 
         .drv_nic =
@@ -118,7 +117,7 @@ post_init(void)
                 .dev_write      = nic_driver_tx_data,
                 .get_mac        = nic_driver_get_mac_address,
             }
-        },
+        }
     };
 
     OS_Error_t ret;
@@ -207,7 +206,6 @@ run(void)
                         get_instance_name(), ret);
         return ret;
     }
-
 
     // actually, OS_NetworkStack_run() is not supposed to return with
     // OS_SUCCESS. We have to assume this is a graceful shutdown for some

@@ -6,6 +6,7 @@
  */
 
 #include "lib_debug/Debug.h"
+
 #include <camkes.h>
 
 //------------------------------------------------------------------------------
@@ -21,7 +22,7 @@ int run(void)
         return -1;
     }
 
-    for(;;)
+    for (;;)
     {
         timeServer_notify_wait();
 

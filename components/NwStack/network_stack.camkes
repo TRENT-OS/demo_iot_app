@@ -48,18 +48,20 @@ component NwStack {
     dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) nic_port_from; // NIC -> stack
     dataport    Buf                             nic_port_to;   // stack -> NIC
 
-    //-------------------------------------------------
-    // interface Application
-    provides    if_OS_Socket            network_stack_rpc;
-    dataport    Buf                     network_stack_port;
-
     //---------------------------------------------------
-    // Configuration server
+    // interface to ConfigurationServer
     uses     if_OS_ConfigService OS_ConfigServiceServer;
     dataport Buf                 configServer_port;
 
     //-------------------------------------------------
-    // interface to log server
+    // interface to LogServer
     dataport    Buf                     logServer_port;
     uses        if_OS_Logger            logServer_rpc;
+
+    //-------------------------------------------------
+    // interface Application
+    provides    if_OS_Socket            network_stack_rpc;
+    // Each socket requires a separate shared data space / dataport.
+    dataport    Buf                     network_stack_port;
+
 }

@@ -69,7 +69,7 @@ init_socket_config(OS_Network_Socket_t* socketConfig,
     socketConfig->domain = OS_AF_INET;
     socketConfig->type   = OS_SOCK_STREAM;
     socketConfig->port   = serverPort;
-    strncpy(socketConfig->name, serverIpAddress, sizeof(socketConfig->name)-1);
+    strncpy(socketConfig->name, serverIpAddress, sizeof(socketConfig->name) - 1);
 
     return OS_SUCCESS;
 }
@@ -198,7 +198,7 @@ int glue_tls_mqtt_write(Network* n,
     if (to_write != len)
     {
         Debug_LOG_ERROR("OS_Tls_write() wrote only %zd bytes (of %d bytes)",
-            to_write, len);
+                        to_write, len);
         return MQTT_FAILURE;
     }
 

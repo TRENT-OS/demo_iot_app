@@ -10,7 +10,6 @@ os_set_config_file(system_config.h CREATE_CONFIG_PROJECT)
 
 add_subdirectory("include/mqtt")
 
-
 #-------------------------------------------------------------------------------
 project(demo_iot_app C)
 
