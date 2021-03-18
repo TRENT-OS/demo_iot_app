@@ -2,7 +2,7 @@
 #include "lib_debug/Debug.h"
 #include <camkes.h>
 
-#define DATABUFFER_CLIENT       (void *)logServer_dp
+#define DATABUFFER_CLIENT       (void *)logServer_port
 
 static OS_LoggerFilter_Handle_t filter;
 

@@ -29,6 +29,6 @@ component SensorTemp {
 
     //-------------------------------------------------
     // interface to log server
-    dataport Buf                logServer_dp;
+    dataport Buf                logServer_port;
     uses     if_OS_Logger       logServer_rpc;
 }

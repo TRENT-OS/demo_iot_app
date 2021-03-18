@@ -23,7 +23,7 @@ static OS_FileSystem_Config_t cfg =
     .size = OS_FileSystem_USE_STORAGE_MAX,
     .storage = IF_OS_STORAGE_ASSIGN(
         storage_rpc,
-        storage_dp),
+        storage_port),
 };
 
 static
