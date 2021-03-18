@@ -12,10 +12,3 @@ components have initialized, the Sensor will proceed to contact the
 CloudConnector about every 5 seconds to send a message to the configured broker.
 The already included default XML configuration file is set to connect
 to a Mosquitto MQTT broker running inside the test container.
-
-## Run
-
-To run this demo, just call the "run_demo.sh" script found in this repository
-from inside the test container and pass it the build directory of the demo.
-
-    ./run_demo.sh <path-to-project-build>
