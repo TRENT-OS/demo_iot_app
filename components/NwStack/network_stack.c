@@ -157,6 +157,12 @@ void post_init(void)
         {
             .notify_loop        = event_internal_emit,
 
+            .allocator_lock     = allocatorMutex_lock,
+            .allocator_unlock   = allocatorMutex_unlock,
+
+            .nwStack_lock       = nwstackMutex_lock,
+            .nwStack_unlock     = nwstackMutex_unlock,
+
             .socketCB_lock      = socketControlBlockMutex_lock,
             .socketCB_unlock    = socketControlBlockMutex_unlock,
 
