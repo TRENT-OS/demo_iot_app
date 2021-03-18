@@ -97,7 +97,7 @@ post_init(void)
             .stackTS_lock       = stackThreadSafeMutex_lock,
             .stackTS_unlock     = stackThreadSafeMutex_unlock,
 
-            .number_of_sockets  = 1,
+            .number_of_sockets = OS_NETWORK_MAXIMUM_SOCKET_NO,
             .sockets = &socks
         },
 
