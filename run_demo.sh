@@ -14,9 +14,6 @@ SDK_PATH=$2
 
 CURRENT_SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
 DIR_BIN_SDK=${SDK_PATH}/bin
-# Be Aware! Any change to the usage of the script is likely supposed to be kept
-# in sync with the official documentation (wiki handbook) like for the pahe at
-# https://wiki.hensoldt-cyber.systems/display/HEN/12.+TRENTOS-M+DEMO+-+IoT+Demo
 USAGE_STRING="Usage: ./run_demo.sh <path-to-project-build> <path-to-sdk>"
 
 if [ -z ${PROJECT_PATH} ]; then
