@@ -9,7 +9,6 @@ import <if_OS_ConfigService.camkes>;
 import <if_OS_Storage.camkes>;
 import <if_OS_Logger.camkes>;
 
-
 component ConfigServer {
 
     provides if_OS_ConfigService OS_ConfigServiceServer;

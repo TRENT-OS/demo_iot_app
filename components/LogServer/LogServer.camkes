@@ -9,7 +9,6 @@ import <if_OS_Storage.camkes>;
 import <if_OS_Logger.camkes>;
 import <if_OS_Timer.camkes>;
 
-
 component LogServer {
 
     provides if_OS_Logger            logServer_rpc;

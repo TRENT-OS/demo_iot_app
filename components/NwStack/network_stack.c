@@ -131,7 +131,8 @@ Timer_getTimeMs(void)
 }
 
 //------------------------------------------------------------------------------
-void post_init(void)
+void
+post_init(void)
 {
     Debug_LOG_INFO("[NwStack '%s'] starting", get_instance_name());
 
@@ -214,7 +215,8 @@ void post_init(void)
 }
 
 //------------------------------------------------------------------------------
-int run(void)
+int
+run(void)
 {
     if (!initSuccessfullyCompleted)
     {

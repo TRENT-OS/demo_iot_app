@@ -13,7 +13,6 @@ import <if_OS_Entropy.camkes>;
 import <if_OS_Timer.camkes>;
 import <if_OS_Logger.camkes>;
 
-
 component CloudConnector {
     control;
 

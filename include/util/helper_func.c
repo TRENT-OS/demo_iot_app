@@ -10,7 +10,10 @@
 
 // -----------------------------------------------------------------------------
 static
-void initializeName(char* buf, size_t bufSize, char const* name)
+void initializeName(
+    char* buf,
+    size_t bufSize,
+    char const* name)
 {
     memset(buf, 0, bufSize);
     strncpy(buf, name, bufSize - 1);
