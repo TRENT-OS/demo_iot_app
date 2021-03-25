@@ -31,19 +31,86 @@ char DEV_ADDR[20];
 char GATEWAY_ADDR[20];
 char SUBNET_MASK[20];
 
-static OS_NetworkStack_AddressConfig_t param_config =
-{
-    .dev_addr      =   DEV_ADDR,
-    .gateway_addr  =   GATEWAY_ADDR,
-    .subnet_mask   =   SUBNET_MASK
-};
-
 static const if_OS_Timer_t timer =
     IF_OS_TIMER_ASSIGN(
         timeServer_rpc,
         timeServer_notify);
 
+static const OS_NetworkStack_AddressConfig_t config =
+{
+    .dev_addr      = DEV_ADDR,
+    .gateway_addr  = GATEWAY_ADDR,
+    .subnet_mask   = SUBNET_MASK
+};
+
 static bool initSuccessfullyCompleted = false;
+
+//------------------------------------------------------------------------------
+static
+OS_Error_t
+read_ip_from_config_server(void)
+{
+    OS_Error_t ret;
+    // Create a handle to the remote library instance.
+    OS_ConfigServiceHandle_t hConfig;
+
+    static OS_ConfigService_ClientCtx_t ctx =
+    {
+        .dataport = OS_DATAPORT_ASSIGN(configServer_port)
+    };
+    ret = OS_ConfigService_createHandleRemote(
+              &ctx,
+              &hConfig);
+    if (ret != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("OS_ConfigService_createHandleRemote() failed with :%d", ret);
+        return ret;
+    }
+
+    // Get the needed param values one by one from config server, using below API
+    ret = helper_func_getConfigParameter(&hConfig,
+                                         DOMAIN_NWSTACK,
+                                         CFG_ETH_ADDR,
+                                         DEV_ADDR,
+                                         sizeof(DEV_ADDR));
+    if (ret != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("helper_func_getConfigParameter() for param %s failed with :%d",
+                        CFG_ETH_ADDR, ret);
+        return ret;
+    }
+    Debug_LOG_INFO("[NwStack '%s'] IP ADDR: %s", get_instance_name(), DEV_ADDR);
+
+    ret = helper_func_getConfigParameter(&hConfig,
+                                         DOMAIN_NWSTACK,
+                                         CFG_ETH_GATEWAY_ADDR,
+                                         GATEWAY_ADDR,
+                                         sizeof(GATEWAY_ADDR));
+    if (ret != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("helper_func_getConfigParameter() for param %s failed with :%d",
+                        CFG_ETH_GATEWAY_ADDR, ret);
+        return ret;
+    }
+    Debug_LOG_INFO("[NwStack '%s'] GATEWAY ADDR: %s", get_instance_name(),
+                   GATEWAY_ADDR);
+
+    ret = helper_func_getConfigParameter(&hConfig,
+                                         DOMAIN_NWSTACK,
+                                         CFG_ETH_SUBNET_MASK,
+                                         SUBNET_MASK,
+                                         sizeof(SUBNET_MASK));
+    if (ret != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("helper_func_getConfigParameter() for param %s failed with :%d",
+                        CFG_ETH_SUBNET_MASK, ret);
+        return ret;
+    }
+    Debug_LOG_INFO("[NwStack '%s'] SUBNETMASK: %s", get_instance_name(),
+                   SUBNET_MASK);
+
+    return OS_SUCCESS;
+}
 
 //------------------------------------------------------------------------------
 // network stack's PicTCP OS adaption layer calls this.
@@ -122,63 +189,15 @@ void post_init(void)
 
     OS_Error_t ret;
 
-    // Create a handle to the remote library instance.
-    OS_ConfigServiceHandle_t hConfig;
-
-    static OS_ConfigService_ClientCtx_t ctx =
-    {
-        .dataport = OS_DATAPORT_ASSIGN(configServer_port)
-    };
-    ret = OS_ConfigService_createHandleRemote(
-            &ctx,
-            &hConfig);
+    ret = read_ip_from_config_server();
     if (ret != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("OS_ConfigService_createHandleRemote() failed with :%d", ret);
+        Debug_LOG_FATAL("[NwStack '%s'] Read from config failed, error %d",
+                        get_instance_name(), ret);
         return;
     }
 
-    // Get the needed param values one by one from config server, using below API
-    ret = helper_func_getConfigParameter(&hConfig,
-                                         DOMAIN_NWSTACK,
-                                         CFG_ETH_ADDR,
-                                         DEV_ADDR,
-                                         sizeof(DEV_ADDR));
-    if (ret != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("helper_func_getConfigParameter() for param %s failed with :%d",
-                        CFG_ETH_ADDR, ret);
-        return;
-    }
-    Debug_LOG_INFO("Retrieved TAP 0 IP Addr: %s", DEV_ADDR);
-
-    ret = helper_func_getConfigParameter(&hConfig,
-                                         DOMAIN_NWSTACK,
-                                         CFG_ETH_GATEWAY_ADDR,
-                                         GATEWAY_ADDR,
-                                         sizeof(GATEWAY_ADDR));
-    if (ret != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("helper_func_getConfigParameter() for param %s failed with :%d",
-                        CFG_ETH_GATEWAY_ADDR, ret);
-        return;
-    }
-    Debug_LOG_INFO("Retrieved TAP 0 GATEWAY ADDR: %s", GATEWAY_ADDR);
-
-    ret = helper_func_getConfigParameter(&hConfig,
-                                         DOMAIN_NWSTACK,
-                                         CFG_ETH_SUBNET_MASK,
-                                         SUBNET_MASK,
-                                         sizeof(SUBNET_MASK));
-    if (ret != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("helper_func_getConfigParameter() for param %s failed with :%d",
-                        CFG_ETH_SUBNET_MASK, ret);
-        return;
-    }
-    Debug_LOG_INFO("Retrieved TAP  0 SUBNETMASK: %s", SUBNET_MASK);
-
-    ret = OS_NetworkStack_init(&camkes_config, &param_config);
+    ret = OS_NetworkStack_init(&camkes_config, &config);
     if (ret != OS_SUCCESS)
     {
         Debug_LOG_FATAL("[NwStack '%s'] OS_NetworkStack_init() failed, error %d",
@@ -189,12 +208,11 @@ void post_init(void)
 }
 
 //------------------------------------------------------------------------------
-int
-run(void)
+int run(void)
 {
     if (!initSuccessfullyCompleted)
     {
-        Debug_LOG_FATAL("[NwStack '%s'] could not call OS_NetworkStack_run() as post_init() failed",
+        Debug_LOG_FATAL("[NwStack '%s'] initialization failed",
                         get_instance_name());
         return -1;
     }
@@ -204,7 +222,7 @@ run(void)
     {
         Debug_LOG_FATAL("[NwStack '%s'] OS_NetworkStack_run() failed, error %d",
                         get_instance_name(), ret);
-        return ret;
+        return -1;
     }
 
     // actually, OS_NetworkStack_run() is not supposed to return with
