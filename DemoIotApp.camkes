@@ -6,17 +6,10 @@
 
 import <std_connector.camkes>;
 
+#include "system_config.h"
+
 import <if_OS_Entropy.camkes>;
 import <if_OS_Timer.camkes>;
-
-import "components/Sensor/Sensor.camkes";
-import "components/CloudConnector/CloudConnector.camkes";
-import "components/LogServer/LogServer.camkes";
-import "components/NwStack/network_stack.camkes";
-import "components/Ticker/Ticker.camkes";
-import "components/ConfigServer/ConfigServer.camkes";
-
-#include "system_config.h"
 
 #include "ChanMux/ChanMux_UART.camkes"
 ChanMux_UART_COMPONENT_DEFINE(
@@ -41,106 +34,30 @@ TimeServer_COMPONENT_DEFINE(TimeServer)
 #include "StorageServer/camkes/StorageServer.camkes"
 StorageServer_COMPONENT_DEFINE(StorageServer)
 
+import "components/Sensor/Sensor.camkes";
+import "components/CloudConnector/CloudConnector.camkes";
+import "components/LogServer/LogServer.camkes";
+import "components/NwStack/network_stack.camkes";
+import "components/Ticker/Ticker.camkes";
+import "components/ConfigServer/ConfigServer.camkes";
+
 assembly {
     composition {
-
-        //----------------------------------------------------------------------
-        // LogServer
-        //----------------------------------------------------------------------
-        component  LogServer        logServer;
-
-
-        //----------------------------------------------------------------------
-        // SensorTemp
-        //----------------------------------------------------------------------
-        component  SensorTemp       sensorTemp;
-
-        connection seL4SharedData   cloudConnectorData_sensorTempData   (from sensorTemp.cloudConnector_port, to cloudConnector.sensor_port);
-        connection seL4RPCCall      cloudConnector_sensorTemp           (from sensorTemp.cloudConnector_rpc,  to cloudConnector.cloudConnector_rpc);
-
-        connection seL4RPCCall      sensorTemp_configServer             (from sensorTemp.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData   sensorTemp_configServer_data        (from sensorTemp.configServer_port,      to configServer.sensor_port);
-
-        connection seL4RPCCall      sensorTemp_logServer                (from sensorTemp.logServer_rpc, to logServer.logServer_rpc);
-        connection seL4SharedData   sensorTemp_logServer_data           (from sensorTemp.logServer_port,  to logServer.sensor_port);
-
-
-        //----------------------------------------------------------------------
-        // CloudConnector
-        //----------------------------------------------------------------------
-        component  CloudConnector       cloudConnector;
-
-        connection seL4RPCCall          cloudConnector_nwStack           (from cloudConnector.networkStack_rpc,  to nwStack.networkStack_rpc);
-        connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.networkStack_port, to nwStack.networkStack_port);
-
-        connection seL4RPCCall          cloudConnector_configServer      (from cloudConnector.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData       cloudConnector_configServer_data (from cloudConnector.configServer_port,      to configServer.cloudConnector_port);
-
-        connection seL4RPCCall          cloudConnector_logServer         (from cloudConnector.logServer_rpc, to logServer.logServer_rpc);
-        connection seL4SharedData       cloudConnector_logServer_data    (from cloudConnector.logServer_port,  to logServer.cloudConnector_port);
-
-        component  EntropySource        entropySource;
-
-        EntropySource_INSTANCE_CONNECT_CLIENT(
-            entropySource,
-            cloudConnector.entropy_rpc,
-            cloudConnector.entropy_port)
-
-        //----------------------------------------------------------------------
-        // Network Driver #1
-        //----------------------------------------------------------------------
-        component  NwDriver         nwDriver;
-
-        ChanMux_UART_INSTANCE_CONNECT_CLIENT(
-            chanMux_UART,
-            nwDriver, data, ctrl
-        )
-
-        NIC_ChanMux_INSTANCE_CONNECT_OPTIONAL_LOGGER(
-            nwDriver,
-            logServer.logServer_rpc, logServer.nwDriver_port
-        )
-
-        //----------------------------------------------------------------------
-        // Network Stack
-        //----------------------------------------------------------------------
-        component  NwStack                nwStack;
-
-        connection seL4NotificationNative NwStackdataAvail2                (from nwStack.event_internal, to nwStack.event_tick_or_data);
-        connection seL4Notification       NwStackEventsRxd1                (from nwStack.e_write,        to nwStack.c_write);
-        connection seL4Notification       NwStackEventsRxd2                (from nwStack.e_read,         to nwStack.c_read);
-        connection seL4Notification       NwStackEventsRxd3                (from nwStack.e_conn,         to nwStack.c_conn);
-
-        NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
-            nwDriver,
-            nwStack.nic_driver,  nwStack.nic_port_to, nwStack.nic_port_from, nwStack.event_tick_or_data
-        )
-
-        connection seL4RPCCall            NwStack_configuration_server     (from nwStack.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
-        connection seL4SharedData         NwStack_config_data              (from nwStack.configServer_port,      to configServer.nwStack_port);
-
-        connection seL4RPCCall            NwStack_logServer                (from nwStack.logServer_rpc, to logServer.logServer_rpc);
-        connection seL4SharedData         NwStack_logServer_data           (from nwStack.logServer_port,  to logServer.nwStack_port);
-
 
         //----------------------------------------------------------------------
         // ChanMux + UART
         //----------------------------------------------------------------------
         component ChanMux_UART chanMux_UART;
         component UART_CHANMUX uart;
-
-        ChanMux_UART_INSTANCE_CONNECT(
-            chanMux_UART,
-            uart
-        )
-
+        ChanMux_UART_INSTANCE_CONNECT(chanMux_UART, uart)
 
         //----------------------------------------------------------------------
         // Ticker
         //----------------------------------------------------------------------
         component  Ticker ticker;
-        connection seL4NotificationNative nwStack_tick (from ticker.e_timeout_nwstacktick, to nwStack.event_tick_or_data);
-
+        connection seL4NotificationNative nwStack_tick(
+            from ticker.e_timeout_nwstacktick,
+            to   nwStack.event_tick_or_data);
 
         //----------------------------------------------------------------------
         // TimeServer
@@ -156,20 +73,10 @@ assembly {
             sensorTemp.timeServer_rpc,      sensorTemp.timeServer_notify
         )
 
-
-        //----------------------------------------------------------------------
-        // ConfigServer
-        //----------------------------------------------------------------------
-        component   ConfigServer     configServer;
-
-        connection  seL4RPCCall      configServer_logServer            (from configServer.logServer_rpc, to logServer.logServer_rpc);
-        connection  seL4SharedData   configServer_logServer_data       (from configServer.logServer_port,  to logServer.configServer_port);
-
-
         //----------------------------------------------------------------------
         // ChanMuxStorage
         //----------------------------------------------------------------------
-        component   Storage_ChanMux     chanMuxStorage;
+        component Storage_ChanMux chanMuxStorage;
 
         ChanMux_UART_INSTANCE_CONNECT_CLIENT(
             chanMux_UART,
@@ -179,7 +86,7 @@ assembly {
         //----------------------------------------------------------------------
         // StorageServer
         //----------------------------------------------------------------------
-        component   StorageServer       storageServer;
+        component StorageServer storageServer;
 
         StorageServer_INSTANCE_CONNECT(
             storageServer,
@@ -190,14 +97,162 @@ assembly {
             configServer.storage_rpc,  configServer.storage_port,
             logServer.storage_rpc, logServer.storage_port
         )
+
+        //----------------------------------------------------------------------
+        // ConfigServer
+        //----------------------------------------------------------------------
+        component ConfigServer configServer;
+
+        connection seL4RPCCall configServer_logServer(
+            from configServer.logServer_rpc,
+            to   logServer.logServer_rpc);
+
+        connection seL4SharedData configServer_logServer_data(
+            from configServer.logServer_port,
+            to   logServer.configServer_port);
+
+        //----------------------------------------------------------------------
+        // LogServer
+        //----------------------------------------------------------------------
+        component LogServer logServer;
+
+        //----------------------------------------------------------------------
+        // Network Driver
+        //----------------------------------------------------------------------
+        component NwDriver nwDriver;
+
+        ChanMux_UART_INSTANCE_CONNECT_CLIENT(
+            chanMux_UART,
+            nwDriver, data, ctrl
+        )
+
+        NIC_ChanMux_INSTANCE_CONNECT_OPTIONAL_LOGGER(
+            nwDriver,
+            logServer.logServer_rpc,
+            logServer.nwDriver_port
+        )
+
+        //----------------------------------------------------------------------
+        // Network Stack
+        //----------------------------------------------------------------------
+        component NwStack nwStack;
+
+        connection seL4NotificationNative NwStackdataAvail2(
+            from nwStack.event_internal,
+            to   nwStack.event_tick_or_data);
+
+        connection seL4Notification NwStackEventsRxd1(
+            from nwStack.e_write,
+            to   nwStack.c_write);
+
+        connection seL4Notification NwStackEventsRxd2(
+            from nwStack.e_read,
+            to   nwStack.c_read);
+
+        connection seL4Notification NwStackEventsRxd3(
+            from nwStack.e_conn,
+            to   nwStack.c_conn);
+
+        NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
+            nwDriver,
+            nwStack.nic_driver,
+            nwStack.nic_port_to,
+            nwStack.nic_port_from,
+            nwStack.event_tick_or_data
+        )
+
+        connection seL4RPCCall NwStack_configuration_server(
+            from nwStack.OS_ConfigServiceServer,
+            to   configServer.OS_ConfigServiceServer);
+
+        connection seL4SharedData NwStack_config_data(
+            from nwStack.configServer_port,
+            to   configServer.nwStack_port);
+
+        connection seL4RPCCall NwStack_logServer(
+            from nwStack.logServer_rpc,
+            to   logServer.logServer_rpc);
+
+        connection seL4SharedData NwStack_logServer_data(
+            from nwStack.logServer_port,
+            to   logServer.nwStack_port);
+
+        //----------------------------------------------------------------------
+        // CloudConnector
+        //----------------------------------------------------------------------
+        component CloudConnector cloudConnector;
+
+        connection seL4RPCCall cloudConnector_nwStack(
+            from cloudConnector.network_stack_rpc,
+            to   nwStack.network_stack_rpc);
+
+        connection seL4SharedData NwApp_dataConnection(
+            from cloudConnector.network_stack_port,
+            to   nwStack.network_stack_port);
+
+        connection seL4RPCCall cloudConnector_configServer(
+            from cloudConnector.OS_ConfigServiceServer,
+            to   configServer.OS_ConfigServiceServer);
+
+        connection seL4SharedData cloudConnector_configServer_data(
+            from cloudConnector.configServer_port,
+            to   configServer.cloudConnector_port);
+
+        connection seL4RPCCall cloudConnector_logServer(
+            from cloudConnector.logServer_rpc,
+            to   logServer.logServer_rpc);
+
+        connection seL4SharedData cloudConnector_logServer_data(
+            from cloudConnector.logServer_port,
+            to   logServer.cloudConnector_port);
+
+        //----------------------------------------------------------------------
+        // EntropySource
+        //----------------------------------------------------------------------
+        component EntropySource entropySource;
+
+        EntropySource_INSTANCE_CONNECT_CLIENT(
+            entropySource,
+            cloudConnector.entropy_rpc,
+            cloudConnector.entropy_port)
+
+        //----------------------------------------------------------------------
+        // SensorTemp
+        //----------------------------------------------------------------------
+        component SensorTemp sensorTemp;
+
+        connection seL4SharedData cloudConnectorData_sensorTempData(
+            from sensorTemp.cloudConnector_port,
+            to   cloudConnector.sensor_port);
+
+        connection seL4RPCCall cloudConnector_sensorTemp(
+            from sensorTemp.cloudConnector_rpc,
+            to   cloudConnector.cloudConnector_rpc);
+
+        connection seL4RPCCall sensorTemp_configServer(
+            from sensorTemp.OS_ConfigServiceServer,
+            to   configServer.OS_ConfigServiceServer);
+
+        connection seL4SharedData sensorTemp_configServer_data(
+            from sensorTemp.configServer_port,
+            to   configServer.sensor_port);
+
+        connection seL4RPCCall sensorTemp_logServer(
+            from sensorTemp.logServer_rpc,
+            to   logServer.logServer_rpc);
+
+        connection seL4SharedData sensorTemp_logServer_data(
+            from sensorTemp.logServer_port,
+            to   logServer.sensor_port);
+
     }
     configuration {
-        /* client id's */
-        configServer.logServer_rpc_attributes =       CONFIGSERVER_LOGGER_ID;
-        cloudConnector.logServer_rpc_attributes =     CLOUDCONNECTOR_LOGGER_ID;
-        sensorTemp.logServer_rpc_attributes =         SENSOR_LOGGER_ID;
-        nwDriver.logServer_rpc_attributes =           NWDRIVER_LOGGER_ID;
-        nwStack.logServer_rpc_attributes =            NWSTACK_LOGGER_ID;
+        /* client IDs */
+        configServer.logServer_rpc_attributes =   CONFIGSERVER_LOGGER_ID;
+        cloudConnector.logServer_rpc_attributes = CLOUDCONNECTOR_LOGGER_ID;
+        sensorTemp.logServer_rpc_attributes =     SENSOR_LOGGER_ID;
+        nwDriver.logServer_rpc_attributes =       NWDRIVER_LOGGER_ID;
+        nwStack.logServer_rpc_attributes =        NWSTACK_LOGGER_ID;
 
         ChanMux_UART_CLIENT_ASSIGN_BADGES(
             nwDriver.chanMux_Rpc,
