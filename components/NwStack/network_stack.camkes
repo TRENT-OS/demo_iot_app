@@ -1,67 +1,56 @@
 /*
-   *  Network Stack
-   *
-   *  Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
-*/
+ * TRENTOS Network Stack
+ *
+ * Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
+ */
 
+#pragma once
 
-import <if_OS_Nic.camkes>;
-import <if_OS_Socket.camkes>;
 import <if_OS_ConfigService.camkes>;
-import <if_OS_Timer.camkes>;
 import <if_OS_Logger.camkes>;
-
+#include "os_network_stack/network_stack.camkes"
 #include "system_config.h"
 
-component NwStack {
 
-    control;
-
-    consumes    EventDataAvailable      event_tick_or_data;
-
-    emits       EventDataAvailable      event_internal;
-
-    emits       NwStack_WrEv            e_write;
-    consumes    NwStack_WrEv            c_write;
-
-    emits       NwStack_RdEv            e_read;
-    consumes    NwStack_RdEv            c_read;
-
-    emits       NwStack_ConnEv          e_conn;
-    consumes    NwStack_ConnEv          c_conn;
-
-    has         mutex                   allocatorMutex;
-    has         mutex                   nwstackMutex;
-
-    has         mutex                   socketControlBlockMutex;
-    has         mutex                   stackThreadSafeMutex;
+//------------------------------------------------------------------------------
+#define NwStack_INTERFACES \
+    /* config server */ \
+    uses      if_OS_ConfigService  OS_ConfigServiceServer; \
+    dataport  Buf                  configServer_port; \
+    /* log server */ \
+    uses      if_OS_Logger  logServer_rpc; \
+    dataport  Buf           logServer_port;
 
 
-    //-------------------------------------------------
-    // interface TimeServer
-    uses        if_OS_Timer           timeServer_rpc;
-    consumes    TimerReady            timeServer_notify;
+//------------------------------------------------------------------------------
+NwStack_COMPONENT_DEFINE(
+    NwStack,
+    NIC_DRIVER_RINGBUFFER_SIZE,
+    1,
+    NwStack_INTERFACES)
 
-    //-------------------------------------------------
-    // interface Ethernet NIC driver
-    uses        if_OS_Nic                       nic_driver;
-    dataport    Buf(NIC_DRIVER_RINGBUFFER_SIZE) nic_port_from; // NIC -> stack
-    dataport    Buf                             nic_port_to;   // stack -> NIC
 
-    //---------------------------------------------------
-    // interface to ConfigurationServer
-    uses     if_OS_ConfigService OS_ConfigServiceServer;
-    dataport Buf                 configServer_port;
+//------------------------------------------------------------------------------
+// Connect a ConfigServer
+#define NETWORK_STACK_CONNECT_CONFIGSERVER(_inst_, _inst_cfg_server_) \
+    \
+    connection seL4RPCCall conn_##_inst_##_##_inst_cfg_server_##_rpc( \
+        from _inst_.OS_ConfigServiceServer, \
+        to   _inst_cfg_server_.OS_ConfigServiceServer); \
+    \
+    connection seL4SharedData conn_##_inst_##_##_inst_cfg_server_##_port( \
+        from _inst_.configServer_port, \
+        to   _inst_cfg_server_.nwStack_port);
 
-    //-------------------------------------------------
-    // interface to LogServer
-    dataport    Buf                     logServer_port;
-    uses        if_OS_Logger            logServer_rpc;
 
-    //-------------------------------------------------
-    // interface Application
-    provides    if_OS_Socket            networkStack_rpc;
-    // Each socket requires a separate shared data space / dataport.
-    dataport    Buf                     networkStack_port;
-
-}
+//------------------------------------------------------------------------------
+// Connect a LogServer
+#define NETWORK_STACK_CONNECT_LOGSERVER(_inst_, _inst_log_server_) \
+    \
+    connection seL4RPCCall conn_##_inst_##_##_inst_log_server_##_rpc( \
+        from _inst_.logServer_rpc, \
+        to   _inst_log_server_.logServer_rpc); \
+    \
+    connection seL4SharedData conn_##_inst__##_inst_log_server_##_port( \
+        from _inst_.logServer_port, \
+        to   _inst_log_server_.nwStack_port);

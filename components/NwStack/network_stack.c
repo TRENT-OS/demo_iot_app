@@ -138,16 +138,16 @@ post_init(void)
 
     static OS_NetworkStack_SocketResources_t socks =
     {
-        .notify_write       = e_write_emit,
-        .wait_write         = c_write_wait,
+        .notify_write       = e_write_1_emit,
+        .wait_write         = c_write_1_wait,
 
-        .notify_read        = e_read_emit,
-        .wait_read          = c_read_wait,
+        .notify_read        = e_read_1_emit,
+        .wait_read          = c_read_1_wait,
 
-        .notify_connection  = e_conn_emit,
-        .wait_connection    = c_conn_wait,
+        .notify_connection  = e_conn_1_emit,
+        .wait_connection    = c_conn_1_wait,
 
-        .buf = OS_DATAPORT_ASSIGN(networkStack_port)
+        .buf = OS_DATAPORT_ASSIGN(socket_1_port)
     };
 
     static const OS_NetworkStack_CamkesConfig_t camkes_config =
@@ -179,17 +179,17 @@ post_init(void)
             // NIC -> Stack
             .from =
             {
-                .io = (void**)( &(nic_port_from)),
+                .io = (void**)( &(nic_from_port)),
                 .size = NIC_DRIVER_RINGBUFFER_NUMBER_ELEMENTS
             },
             // Stack -> NIC
-            .to = OS_DATAPORT_ASSIGN(nic_port_to),
+            .to = OS_DATAPORT_ASSIGN(nic_to_port),
 
             .rpc =
             {
-                .dev_read       = nic_driver_rx_data,
-                .dev_write      = nic_driver_tx_data,
-                .get_mac        = nic_driver_get_mac_address,
+                .dev_read       = nic_rpc_rx_data,
+                .dev_write      = nic_rpc_tx_data,
+                .get_mac        = nic_rpc_get_mac_address,
             }
         }
     };

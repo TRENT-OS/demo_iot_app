@@ -37,7 +37,7 @@ StorageServer_COMPONENT_DEFINE(StorageServer)
 import "components/Sensor/Sensor.camkes";
 import "components/CloudConnector/CloudConnector.camkes";
 import "components/LogServer/LogServer.camkes";
-import "components/NwStack/network_stack.camkes";
+#include "components/NwStack/network_stack.camkes";
 import "components/Ticker/Ticker.camkes";
 import "components/ConfigServer/ConfigServer.camkes";
 
@@ -55,9 +55,6 @@ assembly {
         // Ticker
         //----------------------------------------------------------------------
         component  Ticker ticker;
-        connection seL4NotificationNative nwStack_tick(
-            from ticker.e_timeout_nwstacktick,
-            to   nwStack.event_tick_or_data);
 
         //----------------------------------------------------------------------
         // TimeServer
@@ -137,45 +134,14 @@ assembly {
         //----------------------------------------------------------------------
         component NwStack nwStack;
 
-        connection seL4NotificationNative NwStackdataAvail2(
-            from nwStack.event_internal,
-            to   nwStack.event_tick_or_data);
+        NETWORK_STACK_CONNECT_CONFIGSERVER(nwStack, configServer)
+        NETWORK_STACK_CONNECT_LOGSERVER(nwStack, logServer)
 
-        connection seL4Notification NwStackEventsRxd1(
-            from nwStack.e_write,
-            to   nwStack.c_write);
-
-        connection seL4Notification NwStackEventsRxd2(
-            from nwStack.e_read,
-            to   nwStack.c_read);
-
-        connection seL4Notification NwStackEventsRxd3(
-            from nwStack.e_conn,
-            to   nwStack.c_conn);
-
-        NIC_ChanMux_INSTANCE_CONNECT_CLIENT(
-            nwDriver,
-            nwStack.nic_driver,
-            nwStack.nic_port_to,
-            nwStack.nic_port_from,
-            nwStack.event_tick_or_data
+        NwStack_INSTANCE_CONNECT(
+            nwStack,
+            ticker.e_timeout_nwstacktick,
+            nwDriver
         )
-
-        connection seL4RPCCall NwStack_configuration_server(
-            from nwStack.OS_ConfigServiceServer,
-            to   configServer.OS_ConfigServiceServer);
-
-        connection seL4SharedData NwStack_config_data(
-            from nwStack.configServer_port,
-            to   configServer.nwStack_port);
-
-        connection seL4RPCCall NwStack_logServer(
-            from nwStack.logServer_rpc,
-            to   logServer.logServer_rpc);
-
-        connection seL4SharedData NwStack_logServer_data(
-            from nwStack.logServer_port,
-            to   logServer.nwStack_port);
 
         //----------------------------------------------------------------------
         // CloudConnector
@@ -183,12 +149,12 @@ assembly {
         component CloudConnector cloudConnector;
 
         connection seL4RPCCall cloudConnector_nwStack(
-            from cloudConnector.network_stack_rpc,
-            to   nwStack.network_stack_rpc);
+            from cloudConnector.networkStack_rpc,
+            to   nwStack.networkStack_rpc);
 
         connection seL4SharedData NwApp_dataConnection(
-            from cloudConnector.network_stack_port,
-            to   nwStack.network_stack_port);
+            from cloudConnector.networkStack_port,
+            to   nwStack.socket_1_port);
 
         connection seL4RPCCall cloudConnector_configServer(
             from cloudConnector.OS_ConfigServiceServer,
@@ -221,7 +187,7 @@ assembly {
         //----------------------------------------------------------------------
         component SensorTemp sensorTemp;
 
-        connection seL4SharedData cloudConnectorData_sensorTempData(
+        connection seL4SharedData cloudConnectorData_sensorTemp_data(
             from sensorTemp.cloudConnector_port,
             to   cloudConnector.sensor_port);
 
