@@ -70,8 +70,8 @@ assembly {
         //----------------------------------------------------------------------
         component  CloudConnector       cloudConnector;
 
-        connection seL4RPCCall          cloudConnector_nwStack           (from cloudConnector.network_stack_rpc,  to nwStack.network_stack_rpc);
-        connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.network_stack_port, to nwStack.network_stack_port);
+        connection seL4RPCCall          cloudConnector_nwStack           (from cloudConnector.networkStack_rpc,  to nwStack.networkStack_rpc);
+        connection seL4SharedData       NwApp_dataConnection             (from cloudConnector.networkStack_port, to nwStack.networkStack_port);
 
         connection seL4RPCCall          cloudConnector_configServer      (from cloudConnector.OS_ConfigServiceServer, to configServer.OS_ConfigServiceServer);
         connection seL4SharedData       cloudConnector_configServer_data (from cloudConnector.configServer_port,      to configServer.cloudConnector_port);

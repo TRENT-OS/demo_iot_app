@@ -147,7 +147,7 @@ post_init(void)
         .notify_connection  = e_conn_emit,
         .wait_connection    = c_conn_wait,
 
-        .buf = OS_DATAPORT_ASSIGN(network_stack_port)
+        .buf = OS_DATAPORT_ASSIGN(networkStack_port)
     };
 
     static const OS_NetworkStack_CamkesConfig_t camkes_config =

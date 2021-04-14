@@ -60,8 +60,8 @@ component NwStack {
 
     //-------------------------------------------------
     // interface Application
-    provides    if_OS_Socket            network_stack_rpc;
+    provides    if_OS_Socket            networkStack_rpc;
     // Each socket requires a separate shared data space / dataport.
-    dataport    Buf                     network_stack_port;
+    dataport    Buf                     networkStack_port;
 
 }

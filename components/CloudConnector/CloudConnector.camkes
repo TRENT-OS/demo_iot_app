@@ -27,8 +27,8 @@ component CloudConnector {
 
     //-------------------------------------------------
     // Networking
-    uses        if_OS_Socket                network_stack_rpc;
-    dataport    Buf                         network_stack_port;
+    uses        if_OS_Socket                networkStack_rpc;
+    dataport    Buf                         networkStack_port;
 
     //-------------------------------------------------
     // EntropySource

@@ -621,7 +621,7 @@ static void
 init_network_client_api()
 {
     static OS_NetworkStackClient_SocketDataports_t config;
-    static OS_Dataport_t dataport = OS_DATAPORT_ASSIGN(network_stack_port);
+    static OS_Dataport_t dataport = OS_DATAPORT_ASSIGN(networkStack_port);
 
     config.number_of_sockets = OS_NETWORK_MAXIMUM_SOCKET_NO;
 
