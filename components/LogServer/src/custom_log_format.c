@@ -62,7 +62,7 @@ _Log_format_convert(
         OS_Logger_LOG_LEVEL_LENGTH, entry->emitterMetadata.filteringLevel,
         OS_Logger_LOG_LEVEL_LENGTH, entry->consumerMetadata.filteringLevel,
 
-        msg_len, entry->msg);
+        (int)msg_len, entry->msg);
 
     return OS_SUCCESS;
 }
