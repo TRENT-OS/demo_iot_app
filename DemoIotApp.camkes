@@ -37,7 +37,7 @@ StorageServer_COMPONENT_DEFINE(StorageServer)
 import "components/Sensor/Sensor.camkes";
 import "components/CloudConnector/CloudConnector.camkes";
 import "components/LogServer/LogServer.camkes";
-#include "components/NwStack/network_stack.camkes";
+#include "components/NwStack/network_stack.camkes"
 import "components/Ticker/Ticker.camkes";
 import "components/ConfigServer/ConfigServer.camkes";
 
