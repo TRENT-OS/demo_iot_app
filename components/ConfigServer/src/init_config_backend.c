@@ -46,7 +46,10 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
     Debug_LOG_INFO("Initializing file backends...");
 
     // Initialize the backends in the config library object.
-    initializeName(name.buffer, OS_CONFIG_BACKEND_MAX_FILE_NAME_LEN, DOMAIN_FILE);
+    initializeName(
+        name.buffer,
+        OS_CONFIG_BACKEND_MAX_FILE_NAME_SIZE,
+        DOMAIN_FILE);
     OS_Error_t err = OS_ConfigServiceBackend_initializeFileBackend(
                          &domainBackend,
                          name,
@@ -59,8 +62,10 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
         return err;
     }
 
-    initializeName(name.buffer, OS_CONFIG_BACKEND_MAX_FILE_NAME_LEN,
-                   PARAMETER_FILE);
+    initializeName(
+        name.buffer,
+        OS_CONFIG_BACKEND_MAX_FILE_NAME_SIZE,
+        PARAMETER_FILE);
     err = OS_ConfigServiceBackend_initializeFileBackend(
               &parameterBackend,
               name,
@@ -73,7 +78,10 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
     }
     Debug_LOG_DEBUG("Parameter backend initialized.");
 
-    initializeName(name.buffer, OS_CONFIG_BACKEND_MAX_FILE_NAME_LEN, STRING_FILE);
+    initializeName(
+        name.buffer,
+        OS_CONFIG_BACKEND_MAX_FILE_NAME_SIZE,
+        STRING_FILE);
     err = OS_ConfigServiceBackend_initializeFileBackend(
               &stringBackend,
               name,
@@ -86,7 +94,10 @@ OS_Error_t initializeFileBackends(OS_ConfigServiceLib_t* configLib,
     }
     Debug_LOG_DEBUG("String backend initialized.");
 
-    initializeName(name.buffer, OS_CONFIG_BACKEND_MAX_FILE_NAME_LEN, BLOB_FILE);
+    initializeName(
+        name.buffer,
+        OS_CONFIG_BACKEND_MAX_FILE_NAME_SIZE,
+        BLOB_FILE);
     err = OS_ConfigServiceBackend_initializeFileBackend(
               &blobBackend,
               name,

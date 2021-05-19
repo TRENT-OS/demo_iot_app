@@ -25,7 +25,7 @@ OS_Error_t
 compareDomainName(OS_ConfigServiceLibTypes_DomainName_t const* a,
                   OS_ConfigServiceLibTypes_DomainName_t const* b)
 {
-    for (unsigned int k = 0; k < OS_CONFIG_LIB_DOMAIN_NAME_LEN; ++k)
+    for (unsigned int k = 0; k < OS_CONFIG_LIB_DOMAIN_NAME_SIZE; ++k)
     {
         if (a->name[k] != b->name[k])
         {
@@ -44,7 +44,7 @@ initializeDomainName(
     OS_ConfigServiceLibTypes_DomainName_t* domainName,
     char const* name)
 {
-    initializeName(domainName->name, OS_CONFIG_LIB_DOMAIN_NAME_LEN, name);
+    initializeName(domainName->name, OS_CONFIG_LIB_DOMAIN_NAME_SIZE, name);
 
     return OS_SUCCESS;
 }
@@ -56,7 +56,10 @@ initializeParameterName(
     OS_ConfigServiceLibTypes_ParameterName_t* parameterName,
     char const* name)
 {
-    initializeName(parameterName->name, OS_CONFIG_LIB_PARAMETER_NAME_LEN, name);
+    initializeName(
+        parameterName->name,
+        OS_CONFIG_LIB_PARAMETER_NAME_SIZE,
+        name);
 
     return OS_SUCCESS;
 }
