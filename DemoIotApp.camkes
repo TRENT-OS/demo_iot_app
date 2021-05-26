@@ -148,13 +148,11 @@ assembly {
         //----------------------------------------------------------------------
         component CloudConnector cloudConnector;
 
-        connection seL4RPCCall cloudConnector_nwStack(
-            from cloudConnector.networkStack_rpc,
-            to   nwStack.networkStack_rpc);
-
-        connection seL4SharedData NwApp_dataConnection(
-            from cloudConnector.networkStack_port,
-            to   nwStack.socket_1_port);
+        NwStack_INSTANCE_CONNECT_CLIENT(
+            nwStack,
+            cloudConnector,
+            networkStack_rpc,
+            networkStack_port)
 
         connection seL4RPCCall cloudConnector_configServer(
             from cloudConnector.OS_ConfigServiceServer,
