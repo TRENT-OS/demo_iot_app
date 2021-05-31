@@ -42,9 +42,9 @@ _Log_format_convert(
 
     size_t msg_len = strlen(entry->msg);
 
-    if (msg_len > OS_Logger_MESSAGE_LENGTH)
+    if (msg_len > OS_Logger_ENTRY_MESSAGE_LENGTH)
     {
-        msg_len = OS_Logger_MESSAGE_LENGTH;
+        msg_len = OS_Logger_ENTRY_MESSAGE_LENGTH;
     }
 
     OS_LoggerFormat_Handle_t* const log_format =
