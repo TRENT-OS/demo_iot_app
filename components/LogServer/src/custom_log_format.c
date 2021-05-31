@@ -6,10 +6,11 @@
 #include <stdio.h>
 
 static OS_Error_t _Log_format_convert(
-    OS_LoggerAbstractFormat_Handle_t *self,
-    OS_LoggerEntry_t const * const entry);
+    OS_LoggerAbstractFormat_Handle_t* self,
+    OS_LoggerEntry_t const* const entry);
 
-static const OS_LoggerAbstractFormat_vtable_t _custom_log_format_vtable = {
+static const OS_LoggerAbstractFormat_vtable_t _custom_log_format_vtable =
+{
     .convert = _Log_format_convert,
     .print   = OS_LoggerFormat_print
 };
@@ -22,8 +23,8 @@ OS_LoggerFormat_Handle_t custom_log_format =
 static
 OS_Error_t
 _Log_format_convert(
-    OS_LoggerAbstractFormat_Handle_t *self,
-    OS_LoggerEntry_t const * const entry)
+    OS_LoggerAbstractFormat_Handle_t* self,
+    OS_LoggerEntry_t const* const entry)
 {
     OS_Logger_CHECK_SELF(self);
 
