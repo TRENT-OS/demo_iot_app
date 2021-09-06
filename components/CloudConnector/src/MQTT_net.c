@@ -6,7 +6,6 @@
 
 #include "MQTT_net.h"
 
-#include "lib_compiler/compiler.h"
 #include "lib_debug/Debug.h"
 
 #include "MQTTPacket.h"
