@@ -246,7 +246,7 @@ assembly {
 
     }
     configuration {
-        /* client IDs */
+        // Client IDs
         configServer.logServer_rpc_attributes =   CONFIGSERVER_LOGGER_ID;
         cloudConnector.logServer_rpc_attributes = CLOUDCONNECTOR_LOGGER_ID;
         sensorTemp.logServer_rpc_attributes =     SENSOR_LOGGER_ID;
@@ -284,6 +284,7 @@ assembly {
             1
         )
 
+        // Assign an initial value to the semaphore.
         cloudConnector.sem_value = 0;
     }
 }
