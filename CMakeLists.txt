@@ -105,27 +105,33 @@ DeclareCAmkESComponent(
 )
 
 DeclareCAmkESComponent(
-    NwStack
+    NwStackConfigurator
     INCLUDES
         include/util
     SOURCES
-        components/NwStack/network_stack.c
-        components/common/common.c
+        components/NwStackConfigurator/NwStackConfigurator.c
         include/util/helper_func.c
     C_FLAGS
-        -Wall -Werror
+        -Wall
+        -Werror
         -DOS_CONFIG_SERVICE_CAMKES_CLIENT
-        -DCFG_ETH_ADDR=ETH_ADDR
-        -DCFG_ETH_GATEWAY_ADDR=ETH_GATEWAY_ADDR
-        -DCFG_ETH_SUBNET_MASK=ETH_SUBNET_MASK
     LIBS
         system_config
         os_core_api
-        lib_debug
-        os_network_lib
-        os_logger
         os_configuration
-        TimeServer_client
+        os_network_api
+        lib_debug
+        networkStack_PicoTcp
+)
+
+NetworkStack_PicoTcp_DeclareCAmkESComponent(
+    NetworkStack_PicoTcp
+    C_FLAGS
+        -DUSE_LOGSERVER
+        -DLOGSERVER_CLIENT_LEVEL_FILTER=Debug_LOG_LEVEL_INFO
+        -DLOGSERVER_DATAPORT=logServer_port
+    LIBS
+        os_logger
 )
 
 NIC_ChanMux_DeclareCAmkESComponent(
@@ -146,18 +152,6 @@ ChanMux_UART_DeclareCAmkESComponents(
     ChanMux_UART
     components/ChanMux/ChanMux_config.c
     system_config
-)
-
-DeclareCAmkESComponent(
-    Ticker
-    SOURCES
-        components/Ticker/Ticker.c
-    C_FLAGS
-        -Wall
-        -Werror
-    LIBS
-        os_core_api
-        lib_debug
 )
 
 TimeServer_DeclareCAmkESComponent(

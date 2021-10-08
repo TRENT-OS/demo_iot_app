@@ -34,11 +34,37 @@ TimeServer_COMPONENT_DEFINE(TimeServer)
 #include "StorageServer/camkes/StorageServer.camkes"
 StorageServer_COMPONENT_DEFINE(StorageServer)
 
+#include "NetworkStack_PicoTcp/camkes/NetworkStack_PicoTcp.camkes"
+//------------------------------------------------------------------------------
+// Additional interfaces that the NetworkStack should make use of.
+#define NetworkStack_ADDITIONAL_INTERFACES \
+    uses      if_OS_Logger  logServer_rpc; \
+    dataport  Buf           logServer_port;
+
+//------------------------------------------------------------------------------
+// Connect a LogServer to the NetworkStack.
+#define NetworkStack_CONNECT_LOGSERVER(_inst_, _inst_log_server_) \
+    \
+    connection seL4RPCCall conn_##_inst_##_##_inst_log_server_##_rpc( \
+        from _inst_.logServer_rpc, \
+        to   _inst_log_server_.logServer_rpc); \
+    \
+    connection seL4SharedData conn_##_inst__##_inst_log_server_##_port( \
+        from _inst_.logServer_port, \
+        to   _inst_log_server_.nwStack_port);
+
+NetworkStack_PicoTcp_COMPONENT_DEFINE(
+    NetworkStack_PicoTcp,
+    NIC_DRIVER_RINGBUFFER_SIZE,
+    NetworkStack_ADDITIONAL_INTERFACES)
+
+// The following two system specific components make use of macros which need to
+// be run through the preprocessor. Therefore we need to include them here.
+#include "components/CloudConnector/CloudConnector.camkes"
+#include "components/NwStackConfigurator/NwStackConfigurator.camkes"
+
 import "components/Sensor/Sensor.camkes";
-import "components/CloudConnector/CloudConnector.camkes";
 import "components/LogServer/LogServer.camkes";
-#include "components/NwStack/network_stack.camkes"
-import "components/Ticker/Ticker.camkes";
 import "components/ConfigServer/ConfigServer.camkes";
 
 assembly {
@@ -52,18 +78,12 @@ assembly {
         ChanMux_UART_INSTANCE_CONNECT(chanMux_UART, uart)
 
         //----------------------------------------------------------------------
-        // Ticker
-        //----------------------------------------------------------------------
-        component  Ticker ticker;
-
-        //----------------------------------------------------------------------
         // TimeServer
         //----------------------------------------------------------------------
         component TimeServer timeServer;
 
         TimeServer_INSTANCE_CONNECT_CLIENTS(
             timeServer,
-            ticker.timeServer_rpc,          ticker.timeServer_notify,
             nwStack.timeServer_rpc,         nwStack.timeServer_notify,
             cloudConnector.timeServer_rpc,  cloudConnector.timeServer_notify,
             logServer.timeServer_rpc,       logServer.timeServer_notify,
@@ -132,27 +152,42 @@ assembly {
         //----------------------------------------------------------------------
         // Network Stack
         //----------------------------------------------------------------------
-        component NwStack nwStack;
+        component NetworkStack_PicoTcp nwStack;
 
-        NETWORK_STACK_CONNECT_CONFIGSERVER(nwStack, configServer)
-        NETWORK_STACK_CONNECT_LOGSERVER(nwStack, logServer)
-
-        NwStack_INSTANCE_CONNECT(
+        NetworkStack_PicoTcp_INSTANCE_CONNECT(
             nwStack,
-            ticker.e_timeout_nwstacktick,
             nwDriver
         )
+
+        NetworkStack_CONNECT_LOGSERVER(nwStack, logServer)
+
+        //----------------------------------------------------------------------
+        // Network Stack Configurator
+        //----------------------------------------------------------------------
+        component NwStackConfigurator nwStackConfigurator;
+
+        NetworkStack_PicoTcp_INSTANCE_CONNECT_CONFIG_CLIENT(
+            nwStack,
+            nwStackConfigurator, networkStack_PicoTcp_Config
+        )
+
+        connection seL4RPCCall nwStackConfigurator_configServer(
+            from nwStackConfigurator.OS_ConfigServiceServer,
+            to   configServer.OS_ConfigServiceServer);
+
+        connection seL4SharedData nwStackConfigurator_configServer_data(
+            from nwStackConfigurator.configServer_port,
+            to   configServer.nwStackConfigurator_port);
 
         //----------------------------------------------------------------------
         // CloudConnector
         //----------------------------------------------------------------------
         component CloudConnector cloudConnector;
 
-        NwStack_INSTANCE_CONNECT_CLIENT(
+        NetworkStack_PicoTcp_INSTANCE_CONNECT_CLIENTS(
             nwStack,
-            cloudConnector,
-            networkStack_rpc,
-            networkStack_port)
+            cloudConnector, networkStack
+        )
 
         connection seL4RPCCall cloudConnector_configServer(
             from cloudConnector.OS_ConfigServiceServer,
@@ -234,14 +269,21 @@ assembly {
         )
 
         TimeServer_CLIENT_ASSIGN_BADGES(
-            ticker.timeServer_rpc,
             nwStack.timeServer_rpc,
             cloudConnector.timeServer_rpc,
             logServer.timeServer_rpc,
             sensorTemp.timeServer_rpc
         )
 
-        /* assign an initial value to semaphore */
+        NetworkStack_PicoTcp_CLIENT_ASSIGN_BADGES(
+            cloudConnector, networkStack
+        )
+
+        NetworkStack_PicoTcp_INSTANCE_CONFIGURE_CLIENTS(
+            nwStack,
+            1
+        )
+
         cloudConnector.sem_value = 0;
     }
 }

@@ -14,6 +14,7 @@
 #include "OS_Crypto.h"
 
 #include "OS_Network.h"
+#include "interfaces/if_OS_Socket.h"
 
 #include <string.h>
 #include <camkes.h>

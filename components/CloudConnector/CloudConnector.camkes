@@ -5,9 +5,10 @@
 */
 
 
-import "if_CloudConnector.camkes";
+#include "if_CloudConnector.camkes"
 
-import <if_OS_Socket.camkes>;
+#include <if_OS_Socket.camkes>
+
 import <if_OS_ConfigService.camkes>;
 import <if_OS_Entropy.camkes>;
 import <if_OS_Timer.camkes>;
@@ -27,8 +28,7 @@ component CloudConnector {
 
     //-------------------------------------------------
     // Networking
-    uses        if_OS_Socket                networkStack_rpc;
-    dataport    Buf                         networkStack_port;
+    IF_OS_SOCKET_USE(networkStack)
 
     //-------------------------------------------------
     // EntropySource

@@ -1,0 +1,19 @@
+/*
+ * CAmkES description of the NwStackConfigurator component.
+ *
+ * Copyright (C) 2021, HENSOLDT Cyber GmbH
+ */
+
+#include "NetworkStack_PicoTcp/camkes/if_NetworkStack_PicoTcp_Config.camkes"
+
+import <if_OS_ConfigService.camkes>;
+
+component NwStackConfigurator {
+
+    if_NetworkStack_PicoTcp_Config_USE(networkStack_PicoTcp_Config)
+
+    //---------------------------------------------------
+    // Configuration server
+    uses     if_OS_ConfigService OS_ConfigServiceServer;
+    dataport Buf                 configServer_port;
+}

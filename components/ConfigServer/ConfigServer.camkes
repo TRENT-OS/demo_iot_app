@@ -17,7 +17,7 @@ component ConfigServer {
     // dataports for clients
     dataport Buf sensor_port;
     dataport Buf cloudConnector_port;
-    dataport Buf nwStack_port;
+    dataport Buf nwStackConfigurator_port;
 
     //-------------------------------------------------
     // interface to storage
