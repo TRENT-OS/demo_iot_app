@@ -117,7 +117,7 @@ recvFunc(
     OS_Error_t ret = OS_NetworkSocket_read(*hSocket, buf, len, &n);
     if (ret == OS_ERROR_TRY_AGAIN)
     {
-        // Avoid polling here and rather wait until some we get notified by the
+        // Avoid polling here and rather wait until we get notified by the
         // NetworkStack about pending events. After it gets unblocked, try
         // again.
         networkStack_event_notify_wait();
