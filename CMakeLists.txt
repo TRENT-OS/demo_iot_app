@@ -100,7 +100,7 @@ DeclareCAmkESComponent(
         os_tls
         os_configuration
         os_logger
-        os_network_api
+        os_network
         TimeServer_client
 )
 
@@ -119,7 +119,7 @@ DeclareCAmkESComponent(
         system_config
         os_core_api
         os_configuration
-        os_network_api
+        os_network
         lib_debug
         networkStack_PicoTcp
 )
