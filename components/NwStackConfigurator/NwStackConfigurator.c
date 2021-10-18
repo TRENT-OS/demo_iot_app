@@ -8,7 +8,7 @@
 #include "OS_ConfigService.h"
 #include "OS_Dataport.h"
 #include "OS_Error.h"
-#include "OS_Network.h"
+#include "OS_Socket.h"
 #include "if_NetworkStack_PicoTcp_Config.h"
 #include "lib_debug/Debug.h"
 

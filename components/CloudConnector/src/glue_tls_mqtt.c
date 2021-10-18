@@ -14,7 +14,7 @@ static const if_OS_Socket_t networkStackCtx =
 
 static OS_Tls_Handle_t tlsContext;
 static OS_Crypto_Handle_t hCrypto;
-static OS_NetworkSocket_Handle_t socketHandle;
+static OS_Socket_Handle_t socketHandle;
 
 static int
 sendFunc(
@@ -64,7 +64,7 @@ waitForNetworkStackInit(
 
     for (;;)
     {
-        networkStackState = OS_NetworkSocket_getStatus(ctx);
+        networkStackState = OS_Socket_getStatus(ctx);
         if (networkStackState == RUNNING)
         {
             // NetworkStack up and running.
@@ -88,17 +88,17 @@ sendFunc(
     const unsigned char* buf,
     size_t               len)
 {
-    OS_NetworkSocket_Handle_t* hSocket = (OS_NetworkSocket_Handle_t*) ctx;
+    OS_Socket_Handle_t* hSocket = (OS_Socket_Handle_t*) ctx;
     size_t n;
 
-    OS_Error_t ret = OS_NetworkSocket_write(*hSocket, buf, len, &n);
+    OS_Error_t ret = OS_Socket_write(*hSocket, buf, len, &n);
     if (ret == OS_ERROR_TRY_AGAIN)
     {
         return OS_Tls_SOCKET_WRITE_WOULD_BLOCK;
     }
     else if (ret != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("OS_NetworkSocket_write() failed with %d", ret);
+        Debug_LOG_ERROR("OS_Socket_write() failed with %d", ret);
         return ret;
     }
 
@@ -111,19 +111,19 @@ recvFunc(
     unsigned char* buf,
     size_t         len)
 {
-    OS_NetworkSocket_Handle_t* hSocket = (OS_NetworkSocket_Handle_t*) ctx;
+    OS_Socket_Handle_t* hSocket = (OS_Socket_Handle_t*) ctx;
     size_t n;
 
-    OS_Error_t ret = OS_NetworkSocket_read(*hSocket, buf, len, &n);
+    OS_Error_t ret = OS_Socket_read(*hSocket, buf, len, &n);
     if (ret == OS_ERROR_TRY_AGAIN)
     {
         // Avoid polling here and rather wait until we get notified by the
         // NetworkStack about pending events. After it gets unblocked, try
         // again.
-        ret = OS_NetworkSocket_wait(&networkStackCtx);
+        ret = OS_Socket_wait(&networkStackCtx);
         if (ret != OS_SUCCESS)
         {
-            Debug_LOG_ERROR("OS_NetworkSocket_wait() failed, code %d", ret);
+            Debug_LOG_ERROR("OS_Socket_wait() failed, code %d", ret);
             return ret;
         }
 
@@ -131,7 +131,7 @@ recvFunc(
     }
     else if (ret != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("OS_NetworkSocket_read() failed with %d", ret);
+        Debug_LOG_ERROR("OS_Socket_read() failed with %d", ret);
         return ret;
     }
 
@@ -140,25 +140,25 @@ recvFunc(
 
 static OS_Error_t
 connectSocket(
-    OS_NetworkSocket_Handle_t* const socketHandle,
-    const OS_NetworkSocket_Addr_t* const dstAddr)
+    OS_Socket_Handle_t* const socketHandle,
+    const OS_Socket_Addr_t* const dstAddr)
 {
-    OS_Error_t ret = OS_NetworkSocket_create(
+    OS_Error_t ret = OS_Socket_create(
                          &networkStackCtx,
                          socketHandle,
                          OS_AF_INET,
                          OS_SOCK_STREAM);
     if (ret != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("OS_NetworkSocket_create() failed with: %d", ret);
+        Debug_LOG_ERROR("OS_Socket_create() failed with: %d", ret);
         return ret;
     }
 
-    ret = OS_NetworkSocket_connect(*socketHandle, dstAddr);
+    ret = OS_Socket_connect(*socketHandle, dstAddr);
     if (ret != OS_SUCCESS)
     {
-        Debug_LOG_ERROR("OS_NetworkSocket_connect() failed, code %d", ret);
-        OS_NetworkSocket_close(*socketHandle);
+        Debug_LOG_ERROR("OS_Socket_connect() failed, code %d", ret);
+        OS_Socket_close(*socketHandle);
         return ret;
     }
 
@@ -166,10 +166,10 @@ connectSocket(
     // established.
     for (;;)
     {
-        ret = OS_NetworkSocket_wait(&networkStackCtx);
+        ret = OS_Socket_wait(&networkStackCtx);
         if (ret != OS_SUCCESS)
         {
-            Debug_LOG_ERROR("OS_NetworkSocket_wait() failed, code %d", ret);
+            Debug_LOG_ERROR("OS_Socket_wait() failed, code %d", ret);
             break;
         }
 
@@ -177,14 +177,14 @@ connectSocket(
         const size_t evtBufferSize = sizeof(evtBuffer);
         int numberOfSocketsWithEvents;
 
-        ret = OS_NetworkSocket_getPendingEvents(
+        ret = OS_Socket_getPendingEvents(
                   &networkStackCtx,
                   evtBuffer,
                   evtBufferSize,
                   &numberOfSocketsWithEvents);
         if (ret != OS_SUCCESS)
         {
-            Debug_LOG_ERROR("OS_NetworkSocket_getPendingEvents() failed, code %d",
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents() failed, code %d",
                             ret);
             break;
         }
@@ -192,20 +192,20 @@ connectSocket(
         // We only opened one socket, so if we get more events, this is not ok.
         if (numberOfSocketsWithEvents == 0)
         {
-            Debug_LOG_ERROR("OS_NetworkSocket_getPendingEvents() returned with "
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents() returned with "
                             "unexpected #events: %d", numberOfSocketsWithEvents);
             continue;
         }
 
         if (numberOfSocketsWithEvents != 1)
         {
-            Debug_LOG_ERROR("OS_NetworkSocket_getPendingEvents() returned with "
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents() returned with "
                             "unexpected #events: %d", numberOfSocketsWithEvents);
             ret = OS_ERROR_INVALID_STATE;
             break;
         }
 
-        OS_NetworkSocket_Evt_t event;
+        OS_Socket_Evt_t event;
         memcpy(&event, evtBuffer, sizeof(event));
 
         if (event.socketHandle != socketHandle->handleID)
@@ -219,7 +219,7 @@ connectSocket(
         // Socket has been closed by Network stack.
         if (event.eventMask & OS_SOCK_EV_FIN)
         {
-            Debug_LOG_ERROR("OS_NetworkSocket_getPendingEvents() returned "
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents() returned "
                             "OS_SOCK_EV_FIN for handle: %d",
                             event.socketHandle);
             // Socket has been closed by network stack - close socket.
@@ -230,7 +230,7 @@ connectSocket(
         // Connection successfully established.
         if (event.eventMask & OS_SOCK_EV_CONN_EST)
         {
-            Debug_LOG_DEBUG("OS_NetworkSocket_getPendingEvents() returned "
+            Debug_LOG_DEBUG("OS_Socket_getPendingEvents() returned "
                             "connection established for handle: %d",
                             event.socketHandle);
             ret = OS_SUCCESS;
@@ -240,7 +240,7 @@ connectSocket(
         // Remote socket requested to be closed only valid for clients.
         if (event.eventMask & OS_SOCK_EV_CLOSE)
         {
-            Debug_LOG_ERROR("OS_NetworkSocket_getPendingEvents() returned "
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents() returned "
                             "OS_SOCK_EV_CLOSE for handle: %d",
                             event.socketHandle);
             ret = OS_ERROR_CONNECTION_CLOSED;
@@ -250,7 +250,7 @@ connectSocket(
         // Error received - print error.
         if (event.eventMask & OS_SOCK_EV_ERROR)
         {
-            Debug_LOG_ERROR("OS_NetworkSocket_getPendingEvents() returned "
+            Debug_LOG_ERROR("OS_Socket_getPendingEvents() returned "
                             "OS_SOCK_EV_ERROR for handle: %d, code: %d",
                             event.socketHandle, event.currentError);
             ret = event.currentError;
@@ -260,7 +260,7 @@ connectSocket(
 
     if (ret != OS_SUCCESS)
     {
-        OS_NetworkSocket_close(*socketHandle);
+        OS_Socket_close(*socketHandle);
     }
 
     return ret;
@@ -302,7 +302,7 @@ glue_tls_init(
         return ret;
     }
 
-    OS_NetworkSocket_Addr_t dstAddr;
+    OS_Socket_Addr_t dstAddr;
 
     strncpy(dstAddr.addr, serverIpAddress, sizeof(dstAddr.addr));
     dstAddr.port = serverPort;

@@ -13,7 +13,7 @@
 #include "OS_Tls.h"
 #include "OS_Crypto.h"
 
-#include "OS_Network.h"
+#include "OS_Socket.h"
 #include "interfaces/if_OS_Socket.h"
 
 #include <string.h>
