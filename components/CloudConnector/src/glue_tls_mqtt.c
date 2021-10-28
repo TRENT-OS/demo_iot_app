@@ -305,6 +305,8 @@ glue_tls_init(
     OS_Socket_Addr_t dstAddr;
 
     strncpy(dstAddr.addr, serverIpAddress, sizeof(dstAddr.addr));
+    dstAddr.addr[sizeof(dstAddr.addr) - 1] = '\0';
+
     dstAddr.port = serverPort;
 
     ret = connectSocket(&socketHandle, &dstAddr);
