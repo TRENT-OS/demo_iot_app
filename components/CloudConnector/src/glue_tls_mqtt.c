@@ -91,6 +91,15 @@ sendFunc(
     OS_Socket_Handle_t* hSocket = (OS_Socket_Handle_t*) ctx;
     size_t n;
 
+    // If the requested length exceeds the dataport size, reduce it to the max
+    // size of the dataport.
+    const size_t maxPossibleLen = OS_Dataport_getSize(hSocket->ctx.dataport);
+
+    if (len > maxPossibleLen)
+    {
+        len = maxPossibleLen;
+    }
+
     OS_Error_t ret = OS_Socket_write(*hSocket, buf, len, &n);
     if (ret == OS_ERROR_TRY_AGAIN)
     {
@@ -113,6 +122,15 @@ recvFunc(
 {
     OS_Socket_Handle_t* hSocket = (OS_Socket_Handle_t*) ctx;
     size_t n;
+
+    // If the requested length exceeds the dataport size, reduce it to the max
+    // size of the dataport.
+    const size_t maxPossibleLen = OS_Dataport_getSize(hSocket->ctx.dataport);
+
+    if (len > maxPossibleLen)
+    {
+        len = maxPossibleLen;
+    }
 
     OS_Error_t ret = OS_Socket_read(*hSocket, buf, len, &n);
     if (ret == OS_ERROR_TRY_AGAIN)
