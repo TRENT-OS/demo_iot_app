@@ -16,26 +16,10 @@ static OS_Tls_Handle_t tlsContext;
 static OS_Crypto_Handle_t hCrypto;
 static OS_Socket_Handle_t socketHandle;
 
-static int
-sendFunc(
-    void*                ctx,
-    const unsigned char* buf,
-    size_t               len);
-
-static int
-recvFunc(
-    void*          ctx,
-    unsigned char* buf,
-    size_t         len);
-
 static OS_Tls_Config_t tlsCfg =
 {
     .mode = OS_Tls_MODE_LIBRARY,
     .library = {
-        .socket = {
-            .recv   = recvFunc,
-            .send   = sendFunc,
-        },
         .flags = OS_Tls_FLAG_NONE,
         .crypto = {
             .policy = NULL,
@@ -80,80 +64,6 @@ waitForNetworkStackInit(
         // Yield to wait until the stack is up and running.
         seL4_Yield();
     }
-}
-
-static int
-sendFunc(
-    void*                ctx,
-    const unsigned char* buf,
-    size_t               len)
-{
-    OS_Socket_Handle_t* hSocket = (OS_Socket_Handle_t*) ctx;
-    size_t n;
-
-    // If the requested length exceeds the dataport size, reduce it to the max
-    // size of the dataport.
-    const size_t maxPossibleLen = OS_Dataport_getSize(hSocket->ctx.dataport);
-
-    if (len > maxPossibleLen)
-    {
-        len = maxPossibleLen;
-    }
-
-    OS_Error_t ret = OS_Socket_write(*hSocket, buf, len, &n);
-    if (ret == OS_ERROR_TRY_AGAIN)
-    {
-        return OS_Tls_SOCKET_WRITE_WOULD_BLOCK;
-    }
-    else if (ret != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("OS_Socket_write() failed with %d", ret);
-        return ret;
-    }
-
-    return n;
-}
-
-static int
-recvFunc(
-    void*          ctx,
-    unsigned char* buf,
-    size_t         len)
-{
-    OS_Socket_Handle_t* hSocket = (OS_Socket_Handle_t*) ctx;
-    size_t n;
-
-    // If the requested length exceeds the dataport size, reduce it to the max
-    // size of the dataport.
-    const size_t maxPossibleLen = OS_Dataport_getSize(hSocket->ctx.dataport);
-
-    if (len > maxPossibleLen)
-    {
-        len = maxPossibleLen;
-    }
-
-    OS_Error_t ret = OS_Socket_read(*hSocket, buf, len, &n);
-    if (ret == OS_ERROR_TRY_AGAIN)
-    {
-        // Avoid polling here and rather wait until we get notified by the
-        // NetworkStack about pending events. After it gets unblocked, try
-        // again.
-        ret = OS_Socket_wait(&networkStackCtx);
-        if (ret != OS_SUCCESS)
-        {
-            Debug_LOG_ERROR("OS_Socket_wait() failed, code %d", ret);
-            return ret;
-        }
-
-        return OS_Tls_SOCKET_READ_WOULD_BLOCK;
-    }
-    else if (ret != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("OS_Socket_read() failed with %d", ret);
-        return ret;
-    }
-
-    return n;
 }
 
 static OS_Error_t
