@@ -33,7 +33,7 @@ int MQTT_network_write(
     Network* n,
     const unsigned char* buffer,
     int len,
-    int timeout_ms
+    Timer* timer
 );
 
 int MQTT_network_sendPacket(

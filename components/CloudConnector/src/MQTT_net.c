@@ -20,7 +20,6 @@ int MQTT_network_read(
     Timer* timer
 )
 {
-
     int timeout_ms = timer ? TimerLeftMS(timer) : -1;
 
     // The interface here is a bit odd. We pass (and thus expose) the complete
@@ -42,18 +41,13 @@ int MQTT_network_write(
     Network* n,
     const unsigned char* buffer,
     int len,
-    int timeout_ms
+    Timer* timer
 )
 {
-    // see comment in network_read() above, why the interface is the way it is.
-    int ret = n->mqttwrite(n, buffer, len, timeout_ms);
-    if (ret != MQTT_SUCCESS)
-    {
-        Debug_LOG_ERROR("mqttwrite() failed with: %d", ret);
-        return MQTT_FAILURE; // ToDo: return MQTT_TIMEOUT on timeout
-    }
+    int timeout_ms = timer ? TimerLeftMS(timer) : -1;
 
-    return ret;
+    // see comment in network_read() above, why the interface is the way it is.
+    return n->mqttwrite(n, buffer, len, timeout_ms);
 }
 
 
@@ -66,15 +60,10 @@ int MQTT_network_sendPacket(
     Timer* timer
 )
 {
-
-    int timeout_ms = -1;
-    timeout_ms = TimerLeftMS(timer);
-
-    int ret = MQTT_network_write(n, buffer, length, timeout_ms);
+    int ret = MQTT_network_write(n, buffer, length, timer);
     if (ret != MQTT_SUCCESS)
     {
         Debug_LOG_ERROR("network_write() for packet failed with: %d", ret);
-        return ret;
     }
 
     return ret;
