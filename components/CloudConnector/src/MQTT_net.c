@@ -95,10 +95,10 @@ static int MQTT_network_readAndDecodePacketLength(
         unsigned char lenByte;
         // this will also check internally if the timer has expired
         int rc = MQTT_network_read(n, &lenByte, 1, timer);
-        if (rc != 1)
+        if (rc != MQTT_SUCCESS)
         {
             Debug_LOG_ERROR("network_read() for a length byte failed with: %d", rc);
-            return MQTT_FAILURE; // ToDo: return MQTT_TIMEOUT on timeout
+            return rc;
         }
 
         cntBytes++;
@@ -135,10 +135,10 @@ int MQTT_network_readPacket(
     // read the header byte. This has the packet type in it
 
     int rc = MQTT_network_read(n, buffer, 1, timer);
-    if (rc != 1)
+    if (rc != MQTT_SUCCESS)
     {
         Debug_LOG_ERROR("MQTT_network_read() for header byte failed with: %d", rc);
-        return MQTT_FAILURE; // ToDo: return MQTT_TIMEOUT on timeout
+        return rc;
     }
 
     // read the remaining length, 0 is a valid length
@@ -170,10 +170,10 @@ int MQTT_network_readPacket(
         // ToDo: here we should loop over MQTT_network_read(), as it may read
         //       less data than expected.
         rc = MQTT_network_read(n, &buffer[offset], payloadLen, timer);
-        if (rc != payloadLen)
+        if (rc != MQTT_SUCCESS)
         {
             Debug_LOG_ERROR("MQTT_network_read for payload failed with: %d", rc);
-            return MQTT_FAILURE; // ToDo: return MQTT_TIMEOUT on timeout
+            return rc;
         }
     }
 

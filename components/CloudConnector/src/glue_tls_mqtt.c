@@ -6,11 +6,19 @@
 
 #include "glue_tls_mqtt.h"
 
+#include "TimeServer.h"
+#include "lib_debug/Debug_OS_Error.h"
+
 #include <camkes.h>
 
 //------------------------------------------------------------------------------
 static const if_OS_Socket_t networkStackCtx =
     IF_OS_SOCKET_ASSIGN(networkStack);
+
+static const if_OS_Timer_t timer =
+    IF_OS_TIMER_ASSIGN(
+        timeServer_rpc,
+        timeServer_notify);
 
 static OS_Tls_Handle_t tlsContext;
 static OS_Crypto_Handle_t hCrypto;
@@ -40,6 +48,26 @@ static OS_Crypto_Config_t cryptoCfg =
 };
 
 // Private static functions ----------------------------------------------------
+static uint64_t
+getTimeMs(void)
+{
+    uint64_t ms;
+
+    OS_Error_t err = TimeServer_getTime(
+                         &timer,
+                         TimeServer_PRECISION_MSEC,
+                         &ms);
+
+    if (err != OS_SUCCESS)
+    {
+        Debug_LOG_ERROR("TimeServer_getTime() failed , code '%s'",
+                        Debug_OS_Error_toString(err));
+        ms = 0;
+    }
+
+    return ms;
+}
+
 static OS_Error_t
 waitForNetworkStackInit(
     const if_OS_Socket_t* const ctx)
@@ -269,22 +297,35 @@ int glue_tls_mqtt_write(Network* n,
                         int len,
                         int timeout_ms)
 {
-    Debug_ASSERT(buf    != NULL);
+    Debug_ASSERT(buf != NULL);
 
-    size_t to_write = len;
-    OS_Error_t ret = OS_Tls_write(tlsContext, buf, &to_write);
-    if (ret != OS_SUCCESS)
+    const uint64_t entryTime = getTimeMs();
+    int remaining = len;
+
+    do
     {
-        Debug_LOG_ERROR("OS_Tls_write() failed with: %d", ret);
-        return MQTT_FAILURE;
+        size_t amountRequested = remaining;
+        OS_Error_t ret = OS_Tls_write(tlsContext, buf, &amountRequested);
+        switch (ret)
+        {
+        case OS_SUCCESS:
+            remaining -= amountRequested;
+        case OS_ERROR_WOULD_BLOCK:
+        case OS_ERROR_TRY_AGAIN:
+            break;
+        default:
+            Debug_LOG_ERROR("OS_Tls_write() failed with: %d", ret);
+            return MQTT_FAILURE;
+        }
     }
-    if (to_write != len)
+    while ((remaining > 0) && ((getTimeMs() - entryTime) < timeout_ms));
+
+    if (remaining > 0)
     {
         Debug_LOG_ERROR("OS_Tls_write() wrote only %zd bytes (of %d bytes)",
-                        to_write, len);
-        return MQTT_FAILURE;
+                        len - remaining, len);
+        return MQTT_TIMEOUT;
     }
-
     return MQTT_SUCCESS;
 }
 
@@ -294,23 +335,31 @@ int glue_tls_mqtt_read(Network* n,
                        int len,
                        int timeout_ms)
 {
-    Debug_ASSERT(buf    != NULL);
-
-    Timer t;
-    size_t lengthRead = len;
+    Debug_ASSERT(buf != NULL);
     Debug_LOG_TRACE("%s: %d bytes, %d ms", __func__, len, timeout_ms);
 
-    TimerInit(&t);
-    TimerCountdownMS(&t, timeout_ms);
+    const uint64_t entryTime = getTimeMs();
+    int remaining = len;
+    memset(buf, 0, len);
 
-    memset ( buf, 0, len );
-
-    OS_Error_t ret = OS_Tls_read(tlsContext, buf, &lengthRead);
-    if (ret != OS_SUCCESS && ret != OS_ERROR_CONNECTION_CLOSED)
+    do
     {
-        Debug_LOG_ERROR("OS_Tls_read() failed with: %d", ret);
-        return MQTT_FAILURE;
+        size_t amountRequested = remaining;
+        OS_Error_t ret = OS_Tls_read(tlsContext, buf, &amountRequested);
+        if (ret != OS_SUCCESS)
+        {
+            Debug_LOG_ERROR("OS_Tls_read() failed with: %d", ret);
+            return MQTT_FAILURE;
+        }
+        remaining -= amountRequested;
     }
+    while ((remaining > 0) && ((getTimeMs() - entryTime) < timeout_ms));
 
-    return lengthRead;
+    if (remaining > 0)
+    {
+        Debug_LOG_ERROR("OS_Tls_read() read only %zd bytes (of %d bytes)",
+                        len - remaining, len);
+        return MQTT_TIMEOUT;
+    }
+    return MQTT_SUCCESS;
 }
