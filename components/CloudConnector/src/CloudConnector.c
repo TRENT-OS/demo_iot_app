@@ -82,29 +82,9 @@ CC_FSM_t;
 
 static CC_FSM_t cc_fsm;
 
-static const if_OS_Timer_t timer =
-    IF_OS_TIMER_ASSIGN(
-        timeServer_rpc,
-        timeServer_notify);
-
 //==============================================================================
 // external resources
 //==============================================================================
-
-uint64_t get_mqtt_timestamp_ms()
-{
-    OS_Error_t err;
-    uint64_t ms;
-
-    if ((err = TimeServer_getTime(&timer, TimeServer_PRECISION_MSEC,
-                                  &ms)) != OS_SUCCESS)
-    {
-        Debug_LOG_ERROR("TimeServer_getTime() failed with %d", err);
-        ms = 0;
-    }
-
-    return ms;
-}
 
 OS_Error_t init_config_handle(OS_ConfigServiceHandle_t* configHandle);
 

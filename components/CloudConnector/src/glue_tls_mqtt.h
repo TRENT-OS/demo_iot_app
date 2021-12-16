@@ -34,6 +34,9 @@ glue_tls_init(const char* ipAddress,
 OS_Error_t
 glue_tls_handshake(void);
 
+uint64_t
+glue_tls_mqtt_getTimeMs(void);
+
 int
 glue_tls_mqtt_write(Network* n,
                     const unsigned char* buf,
