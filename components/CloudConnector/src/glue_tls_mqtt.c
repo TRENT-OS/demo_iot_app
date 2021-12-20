@@ -301,16 +301,16 @@ int glue_tls_mqtt_write(Network* n,
     Debug_ASSERT(buf != NULL);
 
     const uint64_t entryTime = glue_tls_mqtt_getTimeMs();
-    int remaining = len;
+    int remainingLen = len;
 
     do
     {
-        size_t amountRequested = remaining;
-        OS_Error_t ret = OS_Tls_write(tlsContext, buf, &amountRequested);
+        size_t actualLen = remainingLen;
+        OS_Error_t ret = OS_Tls_write(tlsContext, buf, &actualLen);
         switch (ret)
         {
         case OS_SUCCESS:
-            remaining -= amountRequested;
+            remainingLen -= actualLen;
         case OS_ERROR_WOULD_BLOCK:
         case OS_ERROR_TRY_AGAIN:
             break;
@@ -319,13 +319,13 @@ int glue_tls_mqtt_write(Network* n,
             return MQTT_FAILURE;
         }
     }
-    while ((remaining > 0)
+    while ((remainingLen > 0)
            && ((glue_tls_mqtt_getTimeMs() - entryTime) < timeout_ms));
 
-    if (remaining > 0)
+    if (remainingLen > 0)
     {
         Debug_LOG_ERROR("OS_Tls_write() wrote only %zd bytes (of %d bytes)",
-                        len - remaining, len);
+                        len - remainingLen, len);
         return MQTT_TIMEOUT;
     }
     return MQTT_SUCCESS;
@@ -341,27 +341,27 @@ int glue_tls_mqtt_read(Network* n,
     Debug_LOG_TRACE("%s: %d bytes, %d ms", __func__, len, timeout_ms);
 
     const uint64_t entryTime = glue_tls_mqtt_getTimeMs();
-    int remaining = len;
+    int remainingLen = len;
     memset(buf, 0, len);
 
     do
     {
-        size_t amountRequested = remaining;
-        OS_Error_t ret = OS_Tls_read(tlsContext, buf, &amountRequested);
+        size_t actualLen = remainingLen;
+        OS_Error_t ret = OS_Tls_read(tlsContext, buf, &actualLen);
         if (ret != OS_SUCCESS)
         {
             Debug_LOG_ERROR("OS_Tls_read() failed with: %d", ret);
             return MQTT_FAILURE;
         }
-        remaining -= amountRequested;
+        remainingLen -= actualLen;
     }
-    while ((remaining > 0)
+    while ((remainingLen > 0)
            && ((glue_tls_mqtt_getTimeMs() - entryTime) < timeout_ms));
 
-    if (remaining > 0)
+    if (remainingLen > 0)
     {
         Debug_LOG_ERROR("OS_Tls_read() read only %zd bytes (of %d bytes)",
-                        len - remaining, len);
+                        len - remainingLen, len);
         return MQTT_TIMEOUT;
     }
     return MQTT_SUCCESS;
