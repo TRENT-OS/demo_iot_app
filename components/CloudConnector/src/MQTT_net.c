@@ -147,7 +147,7 @@ int MQTT_network_readPacket(
     if ((rc <= 0) || (payloadLen < 0))
     {
         Debug_LOG_ERROR("MQTT_network_readAndDecodePacketLength failed with: %d", rc);
-        return MQTT_FAILURE; // ToDo: return MQTT_TIMEOUT on timeout
+        return rc;
     }
 
     // put the original remaining length back into the buffer
