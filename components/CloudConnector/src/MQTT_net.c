@@ -167,8 +167,6 @@ int MQTT_network_readPacket(
             return  MQTT_BUFFER_OVERFLOW;
         }
 
-        // ToDo: here we should loop over MQTT_network_read(), as it may read
-        //       less data than expected.
         rc = MQTT_network_read(n, &buffer[offset], payloadLen, timer);
         if (rc != MQTT_SUCCESS)
         {
