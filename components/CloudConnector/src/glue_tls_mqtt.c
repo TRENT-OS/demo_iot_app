@@ -319,6 +319,9 @@ int glue_tls_mqtt_write(Network* n,
             remainingLen -= actualLen;
             writtenLen += actualLen;
         case OS_ERROR_WOULD_BLOCK:
+            // Donate the remaining timeslice to a thread of the same priority
+            // and try to write again with the next turn.
+            seL4_Yield();
             break;
         default:
             Debug_LOG_ERROR("OS_Tls_write() failed with: %d", ret);
@@ -361,6 +364,9 @@ int glue_tls_mqtt_read(Network* n,
             remainingLen -= actualLen;
             readLen += actualLen;
         case OS_ERROR_WOULD_BLOCK:
+            // Donate the remaining timeslice to a thread of the same priority
+            // and try to read again with the next turn.
+            seL4_Yield();
             break;
         default:
             Debug_LOG_ERROR("OS_Tls_read() failed with: %d", ret);
