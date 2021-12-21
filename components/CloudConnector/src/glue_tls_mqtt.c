@@ -328,8 +328,8 @@ int glue_tls_mqtt_write(Network* n,
 
     if (remainingLen > 0)
     {
-        Debug_LOG_ERROR("OS_Tls_write() wrote only %zd bytes (of %d bytes)",
-                        len - remainingLen, len);
+        Debug_LOG_ERROR("OS_Tls_write() wrote only %zu bytes (of %d bytes)",
+                        writtenLen, len);
         return MQTT_TIMEOUT;
     }
     return MQTT_SUCCESS;
@@ -370,8 +370,8 @@ int glue_tls_mqtt_read(Network* n,
 
     if (remainingLen > 0)
     {
-        Debug_LOG_ERROR("OS_Tls_read() read only %zd bytes (of %d bytes)",
-                        len - remainingLen, len);
+        Debug_LOG_ERROR("OS_Tls_read() read only %zu bytes (of %d bytes)",
+                        readLen, len);
         return MQTT_TIMEOUT;
     }
     return MQTT_SUCCESS;
