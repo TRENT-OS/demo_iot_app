@@ -301,7 +301,7 @@ int glue_tls_mqtt_write(Network* n,
     Debug_ASSERT(buf != NULL);
 
     const uint64_t entryTime = glue_tls_mqtt_getTimeMs();
-    int remainingLen = len;
+    size_t remainingLen = len;
     size_t writtenLen = 0;
 
     // Loop until all data is sent or timeout.
@@ -345,7 +345,7 @@ int glue_tls_mqtt_read(Network* n,
     Debug_LOG_TRACE("%s: %d bytes, %d ms", __func__, len, timeout_ms);
 
     const uint64_t entryTime = glue_tls_mqtt_getTimeMs();
-    int remainingLen = len;
+    size_t remainingLen = len;
     memset(buf, 0, len);
     size_t readLen = 0;
 
