@@ -325,6 +325,7 @@ int glue_tls_mqtt_write(Network* n,
         case OS_SUCCESS:
             remainingLen -= actualLen;
             writtenLen += actualLen;
+            break;
         case OS_ERROR_WOULD_BLOCK:
             // Donate the remaining timeslice to a thread of the same priority
             // and try to write again with the next turn.
@@ -377,6 +378,7 @@ int glue_tls_mqtt_read(Network* n,
         case OS_SUCCESS:
             remainingLen -= actualLen;
             readLen += actualLen;
+            break;
         case OS_ERROR_WOULD_BLOCK:
             // Donate the remaining timeslice to a thread of the same priority
             // and try to read again with the next turn.
