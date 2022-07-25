@@ -1,15 +1,16 @@
 #
 # Demo IoT
 #
-# Copyright (C) 2019-2021, HENSOLDT Cyber GmbH
+# Copyright (C) 2019-2022, HENSOLDT Cyber GmbH
 #
 
 cmake_minimum_required(VERSION 3.7.2)
 
-os_set_config_file(
-    "system_config.h"
-    CONFIG_PROJECT_NAME "system_config"
-)
+#-------------------------------------------------------------------------------
+# use the SDK
+find_package("os-sdk" REQUIRED)
+os_sdk_set_defaults()
+os_sdk_setup(CONFIG_FILE "system_config.h" CONFIG_PROJECT "system_config")
 
 add_subdirectory("include/mqtt")
 
@@ -161,5 +162,4 @@ EntropySource_DeclareCAmkESComponent(
     EntropySource
 )
 
-DeclareAndCreateCamkESSystem(DemoIotApp.camkes)
-GenerateSimulateScript()
+os_sdk_create_CAmkES_system("DemoIotApp.camkes")
