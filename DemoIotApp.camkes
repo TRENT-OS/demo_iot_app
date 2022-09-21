@@ -11,19 +11,8 @@ import <std_connector.camkes>;
 import <if_OS_Entropy.camkes>;
 import <if_OS_Timer.camkes>;
 
-#include "ChanMux/ChanMux_UART.camkes"
-ChanMux_UART_COMPONENT_DEFINE(
-    ChanMux_UART,
-    chanMuxStorage, chan,
-    nwDriver, data,
-    nwDriver, ctrl
-)
-
 #include "Storage_ChanMux/Storage_ChanMux.camkes"
 Storage_ChanMux_COMPONENT_DEFINE(Storage_ChanMux)
-
-#include "NIC_ChanMux/NIC_ChanMux.camkes"
-NIC_ChanMux_COMPONENT_DEFINE(NwDriver, NIC_DRIVER_RINGBUFFER_SIZE)
 
 #include "EntropySource/camkes/EntropySource.camkes"
 EntropySource_COMPONENT_DEFINE(EntropySource)
@@ -66,6 +55,8 @@ NetworkStack_PicoTcp_COMPONENT_DEFINE(
 import "components/Sensor/Sensor.camkes";
 import "components/LogServer/LogServer.camkes";
 import "components/ConfigServer/ConfigServer.camkes";
+
+#include "plat_nic.camkes"
 
 assembly {
     composition {
