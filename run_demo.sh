@@ -22,9 +22,8 @@ if [ -z ${PROJECT_PATH} ]; then
     exit 1
 fi
 
-CMAKE_FILE_PATH=${SDK_PATH}/CMakeLists.txt
 BUILD_FILE_PATH=${SDK_PATH}/build-system.sh
-if [ ! -f ${CMAKE_FILE_PATH} ] || [ ! -f ${BUILD_FILE_PATH} ]; then
+if [ ! -f ${BUILD_FILE_PATH} ]; then
     echo "ERROR: missing (or wrong) path to sdk!"
     echo ${USAGE_STRING}
     exit 1
