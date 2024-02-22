@@ -2,7 +2,9 @@
  * NwStackConfigurator component that retrieves the stack configuration from the
  * ConfigServer and configures the NetworkStack component with it.
  *
- * Copyright (C) 2021, HENSOLDT Cyber GmbH
+ * Copyright (C) 2021-2024, HENSOLDT Cyber GmbH
+ * 
+ * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "OS_ConfigService.h"

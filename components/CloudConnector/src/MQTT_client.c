@@ -1,9 +1,11 @@
 /*
- *  MQTT client based on PAHO
+ * MQTT client based on PAHO
  *
- *  Copyright (C) 2020-2021, HENSOLDT Cyber GmbH
+ * Copyright (C) 2020-2024, HENSOLDT Cyber GmbH
+ * 
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
- *  This code is based on PAHO sample code Copyright (c) 2014, 2017 IBM Corp.
+ * For commercial licensing, contact: info.cyber@hensoldt.net
  */
 
 #include "MQTT_client.h"
